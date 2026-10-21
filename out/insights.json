@@ -1,0 +1,246 @@
+{
+  "product": "Groww (com.nextbillion.groww)",
+  "source": "Google Play Store, India, English — public reviews",
+  "window": {
+    "from": "2026-07-21",
+    "to": "2026-09-19",
+    "reviews": 500
+  },
+  "rating_mix": {
+    "1": 224,
+    "2": 29,
+    "3": 51,
+    "4": 44,
+    "5": 152
+  },
+  "low_star_pct": 51,
+  "ranking_rule": "Top 3 = themes with the most 1–2★ reviews (pain volume); ties broken by total mentions.",
+  "themes": [
+    {
+      "key": "reliability",
+      "label": "App reliability: update regressions, charts & order glitches",
+      "short": "App reliability",
+      "reviews_mentioning": 189,
+      "share_pct": 37.8,
+      "primary_count": 162,
+      "avg_rating": 2.41,
+      "low_star_reviews": 107,
+      "low_star_pct": 56.6
+    },
+    {
+      "key": "support",
+      "label": "Customer support hard to reach / issues unresolved",
+      "short": "Customer support",
+      "reviews_mentioning": 99,
+      "share_pct": 19.8,
+      "primary_count": 77,
+      "avg_rating": 1.44,
+      "low_star_reviews": 85,
+      "low_star_pct": 85.9
+    },
+    {
+      "key": "charges",
+      "label": "Charges & deductions not understood (brokerage, 'external charges & taxes', DP)",
+      "short": "Charges & deductions",
+      "reviews_mentioning": 71,
+      "share_pct": 14.2,
+      "primary_count": 45,
+      "avg_rating": 2.08,
+      "low_star_reviews": 48,
+      "low_star_pct": 67.6
+    },
+    {
+      "key": "account_money",
+      "label": "Account, KYC & money movement (activation, withdrawals, payments)",
+      "short": "Account & money movement",
+      "reviews_mentioning": 65,
+      "share_pct": 13.0,
+      "primary_count": 27,
+      "avg_rating": 2.14,
+      "low_star_reviews": 44,
+      "low_star_pct": 67.7
+    },
+    {
+      "key": "ease_of_use",
+      "label": "Praise: simple, beginner-friendly investing",
+      "short": "Ease of use (praise)",
+      "reviews_mentioning": 144,
+      "share_pct": 28.8,
+      "primary_count": 120,
+      "avg_rating": 4.84,
+      "low_star_reviews": 0,
+      "low_star_pct": 0.0
+    }
+  ],
+  "top_3_themes": [
+    "App reliability: update regressions, charts & order glitches",
+    "Customer support hard to reach / issues unresolved",
+    "Charges & deductions not understood (brokerage, 'external charges & taxes', DP)"
+  ],
+  "praise": {
+    "reviews": 144,
+    "share_pct": 28.8,
+    "avg_rating": 4.84
+  },
+  "quotes": [
+    {
+      "theme": "App reliability",
+      "review_id": "7f42e7d6-9711-4bb8-8790-fb2e49f737b2",
+      "date": "2026-08-28",
+      "rating": 1,
+      "excerpt": "When we open the charts the back button on our phone just disappears and we end up clicking the scalper mode or …"
+    },
+    {
+      "theme": "Customer support",
+      "review_id": "76ff1940-6aab-40dc-8e11-b1a401b1792e",
+      "date": "2026-08-01",
+      "rating": 1,
+      "excerpt": "they keep you on hold for more than 10 mins and never connect."
+    },
+    {
+      "theme": "Charges & deductions",
+      "review_id": "fcb0057c-a76c-492e-b953-eda2273139ef",
+      "date": "2026-09-19",
+      "rating": 1,
+      "excerpt": "I understand that taxes and other charges may apply, but the deductions were very disappointing and were not clear enough to me."
+    }
+  ],
+  "lead_theme_peak": {
+    "week": "2026-W35",
+    "start": "2026-08-24",
+    "end": "2026-08-30",
+    "share_pct": 50
+  },
+  "regression_signal": {
+    "pattern": "scalp|navigation|back button",
+    "reviews": 30,
+    "low_star": 20
+  },
+  "fee_issue": {
+    "fee_key": "external_charges",
+    "fee": "\"External charges & taxes\" deducted on top of brokerage",
+    "mentions": 24,
+    "mentions_with_confusion_cue": 16,
+    "charges_theme_reviews": 71,
+    "all_fee_counts": {
+      "\"External charges & taxes\" deducted on top of brokerage": {
+        "mentions": 24,
+        "confused": 16
+      },
+      "Brokerage per executed order": {
+        "mentions": 27,
+        "confused": 5
+      },
+      "DP charge on delivery sells": {
+        "mentions": 5,
+        "confused": 1
+      },
+      "Account-service fees (DDPI, email change)": {
+        "mentions": 1,
+        "confused": 1
+      },
+      "MTF interest / haircut": {
+        "mentions": 2,
+        "confused": 0
+      }
+    },
+    "example_quote": {
+      "review_id": "3c7714ea-d6e5-482c-9f18-fc2e573f133b",
+      "date": "2026-08-06",
+      "rating": 1,
+      "excerpt": "I donot know what kind of external charges and tax they are taking"
+    },
+    "evidence_review_ids": [
+      "fcb0057c-a76c-492e-b953-eda2273139ef",
+      "f36802d7-2174-4e20-86a8-03f39827ac7c",
+      "3cfb3c39-de11-43dd-baf3-ab48b1444dd6",
+      "518deb14-f67c-4556-834c-bdb1092d97db",
+      "c9a487b4-f08d-465d-bbd7-44c5c94de04e",
+      "dda8163b-32e1-48ba-a757-6b29158c1db0",
+      "4f3fd13c-526b-47dc-adf9-f5a823d1f863",
+      "3f550c44-4ea3-47ed-9528-dbdf81a1c5b9",
+      "9c2eef97-7615-46f2-abc8-8f06578afbea",
+      "b6df5c5a-fe5e-4918-9b53-bd8d65dddb75",
+      "92f72fda-ba3f-4f1c-8055-15fec25e5799",
+      "e651315f-a8aa-4540-9b8d-dc2468d1fc51",
+      "3c7714ea-d6e5-482c-9f18-fc2e573f133b",
+      "0fc1af95-ada0-41bc-833d-232b29e40daa",
+      "5ae7f776-61ca-4cc9-9578-fa451377826d",
+      "d227133d-af9c-4919-8bc1-c9f42bb16993"
+    ]
+  },
+  "weekly_counts": {
+    "2026-W30": {
+      "_total": 22,
+      "reliability": 11,
+      "support": 4,
+      "ease_of_use": 3,
+      "charges": 4,
+      "account_money": 2
+    },
+    "2026-W31": {
+      "_total": 31,
+      "ease_of_use": 13,
+      "charges": 5,
+      "support": 8,
+      "reliability": 12,
+      "account_money": 1
+    },
+    "2026-W32": {
+      "_total": 56,
+      "account_money": 9,
+      "support": 9,
+      "charges": 11,
+      "reliability": 20,
+      "ease_of_use": 17
+    },
+    "2026-W33": {
+      "_total": 35,
+      "reliability": 9,
+      "support": 9,
+      "account_money": 6,
+      "charges": 4,
+      "ease_of_use": 5
+    },
+    "2026-W34": {
+      "_total": 36,
+      "support": 8,
+      "account_money": 4,
+      "reliability": 12,
+      "ease_of_use": 7,
+      "charges": 1
+    },
+    "2026-W35": {
+      "_total": 106,
+      "ease_of_use": 31,
+      "support": 17,
+      "reliability": 53,
+      "account_money": 16,
+      "charges": 22
+    },
+    "2026-W36": {
+      "_total": 78,
+      "reliability": 30,
+      "support": 15,
+      "ease_of_use": 25,
+      "charges": 6,
+      "account_money": 5
+    },
+    "2026-W37": {
+      "_total": 71,
+      "charges": 10,
+      "support": 13,
+      "account_money": 12,
+      "reliability": 23,
+      "ease_of_use": 22
+    },
+    "2026-W38": {
+      "_total": 65,
+      "charges": 8,
+      "support": 16,
+      "reliability": 19,
+      "account_money": 10,
+      "ease_of_use": 21
+    }
+  }
+}

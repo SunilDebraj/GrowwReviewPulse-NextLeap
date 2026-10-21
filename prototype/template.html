@@ -1,0 +1,723 @@
+<title>Groww Review Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: an operations console. A sticky rail lists the six pipeline stages; the main column walks
+   the same stages top to bottom. The approval gate is the one loud band on the page. */
+:root {
+  --bg: #f3f6f5; --surface: #ffffff; --sunk: #e9efed; --ink: #15201c; --muted: #58655f; --line: #d8e0dd;
+  --accent: #0b6b5d; --accent-ink: #ffffff; --accent-soft: #dcefe9;
+  --pain: #b23a30; --pain-soft: #f6e2df; --mid: #9a6b12; --ok: #2c7a47; --ok-soft: #e0f1e5;
+  --gate: #a8650f; --gate-soft: #fbefd9; --gate-line: #e6c48c;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1412; --surface: #151d1a; --sunk: #1b2521; --ink: #e5ece9; --muted: #98a59f; --line: #27322e;
+  --accent: #52c2aa; --accent-ink: #06231d; --accent-soft: #143029;
+  --pain: #ef8075; --pain-soft: #3a1d1a; --mid: #e0b45a; --ok: #6fc78d; --ok-soft: #15301f;
+  --gate: #e7a94d; --gate-soft: #2e2410; --gate-line: #5e4719; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0e1412; --surface: #151d1a; --sunk: #1b2521; --ink: #e5ece9; --muted: #98a59f; --line: #27322e;
+  --accent: #52c2aa; --accent-ink: #06231d; --accent-soft: #143029;
+  --pain: #ef8075; --pain-soft: #3a1d1a; --mid: #e0b45a; --ok: #6fc78d; --ok-soft: #15301f;
+  --gate: #e7a94d; --gate-soft: #2e2410; --gate-line: #5e4719; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); padding-inline: 16px; padding-block: 0 48px; }
+.wrap { max-width: 1140px; margin: 0 auto; }
+a { color: var(--accent); text-underline-offset: 2px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+.tab { font-variant-numeric: tabular-nums; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* masthead */
+.mast { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: end; justify-content: space-between; padding-block: 28px 20px; border-bottom: 1px solid var(--line); }
+.mast h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+.mast p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+.flow { font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.flow span { padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.flow .g { font-weight: 500; color: var(--gate); border-color: var(--gate-line); background: var(--gate-soft); }
+
+/* frame */
+.frame { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 32px; padding-top: 24px; }
+.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); align-self: start; display: grid; gap: 2px; }
+.rail a { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: center; padding: 7px 8px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 13.5px; }
+.rail a:hover { background: var(--sunk); color: var(--ink); }
+.rail .n { font-family: var(--mono); font-size: 11px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); }
+.rail a[data-state="done"] .n { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.rail a[data-state="hold"] .n { background: var(--gate); color: var(--surface); border-color: var(--gate); }
+.rail a[data-state="hold"] { color: var(--ink); font-weight: 500; }
+main { display: grid; gap: 40px; min-width: 0; }
+
+/* sections */
+section { display: grid; gap: 16px; min-width: 0; scroll-margin-top: 16px; }
+.sh { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+.sh .k { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; }
+.sh h2 { font-size: 23px; font-weight: 600; letter-spacing: -0.01em; }
+.sh .aside { margin-left: auto; color: var(--muted); font-size: 13px; }
+.lead { margin: 0; color: var(--muted); max-width: 70ch; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.label { font-size: 11.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+/* input row */
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.fact b { display: block; font-family: var(--display); font-size: 22px; font-weight: 600; line-height: 1.2; }
+.fact span { color: var(--muted); font-size: 13px; }
+.mix { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 4px; }
+.mix i { display: block; height: 100%; }
+.mixkey { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+.mixkey s { text-decoration: none; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: 0; }
+.loader { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 7px 13px; border-radius: 8px; cursor: pointer; font-size: 14px; display: inline-flex; gap: 6px; align-items: center; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.file { position: relative; overflow: hidden; }
+.file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.note { font-size: 13px; color: var(--muted); }
+.err { color: var(--pain); font-size: 13.5px; }
+
+/* themes chart */
+.themes { display: grid; gap: 14px; }
+.trow { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 6px 16px; align-items: center; }
+.trow .nm { font-weight: 500; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.badge { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); letter-spacing: 0.04em; }
+.badge.praise { background: var(--ok-soft); color: var(--ok); }
+.track { display: flex; height: 18px; border-radius: 4px; overflow: hidden; background: var(--sunk); }
+.track i { display: block; height: 100%; }
+.seg-pain { background: var(--pain); }
+.seg-rest { background: color-mix(in srgb, var(--accent) 45%, var(--sunk)); }
+.seg-praise { background: var(--ok); }
+.tmeta { grid-column: 2; font-size: 12.5px; color: var(--muted); margin-top: -2px; }
+.tmeta b { color: var(--ink); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--muted); }
+.legend s { text-decoration: none; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+
+.quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+blockquote { margin: 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); display: grid; gap: 8px; align-content: start; }
+blockquote p { margin: 0; font-size: 14.5px; }
+blockquote footer { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.stars { color: var(--pain); letter-spacing: 1px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.pick td { background: var(--accent-soft); }
+tr.pick td:first-child { font-weight: 600; }
+.scroll { overflow-x: auto; }
+
+/* weekly chart */
+svg text { fill: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+svg .val { fill: var(--ink); font-size: 10.5px; }
+svg .bar { fill: color-mix(in srgb, var(--accent) 45%, var(--sunk)); }
+svg .bar.peak { fill: var(--pain); }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+
+/* pulse doc */
+.doc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 22px 24px; max-width: 74ch; }
+.doc h3 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.doc h4 { font-family: var(--body); font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent); margin: 18px 0 6px; }
+.doc p { margin: 6px 0; }
+.doc ol, .doc ul { margin: 4px 0; padding-left: 22px; display: grid; gap: 4px; }
+.checks { display: grid; gap: 6px; align-content: start; }
+.check { display: flex; gap: 8px; align-items: baseline; font-size: 13.5px; }
+.check::before { content: "✓"; color: var(--ok); font-weight: 700; }
+.check.bad::before { content: "✕"; color: var(--pain); }
+.side { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
+.toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.toggle button { border: 0; background: var(--surface); padding: 6px 12px; cursor: pointer; font-size: 13px; }
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+/* explainer + ledger */
+.bul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.ledger { font-family: var(--mono); font-size: 13px; background: var(--sunk); border-radius: 8px; padding: 14px; display: grid; gap: 10px; }
+.ledger .row { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+.ledger .row span:last-child { white-space: nowrap; }
+.ledger .hd { color: var(--muted); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px dashed var(--line); padding-bottom: 4px; }
+.ledger .tot { border-top: 1px dashed var(--line); padding-top: 6px; font-weight: 500; }
+.ledger .neg { color: var(--pain); }
+.calc { display: flex; flex-wrap: wrap; gap: 10px; }
+.calc label { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+.calc input { width: 96px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-family: var(--mono); font-size: 13px; }
+.srcs { display: grid; gap: 4px; font-size: 14px; }
+
+/* approval gate — the loud band */
+.gate { background: var(--gate-soft); border: 1px solid var(--gate-line); border-radius: 14px; padding: 20px; display: grid; gap: 16px; }
+.gate .sh .k { color: var(--gate); }
+.gstatus { font-family: var(--mono); font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--gate-line); color: var(--gate); background: var(--surface); }
+.gstatus[data-s="approved"] { color: var(--ok); border-color: var(--ok); }
+.gstatus[data-s="rejected"] { color: var(--pain); border-color: var(--pain); }
+.action { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 8px; }
+.action .top { display: flex; gap: 12px; align-items: start; }
+.action input[type="checkbox"] { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); flex: none; }
+.action h3 { font-family: var(--body); font-size: 15.5px; font-weight: 600; }
+.action .what { font-size: 13.5px; color: var(--muted); margin: 2px 0 0; }
+.astate { margin-left: auto; font-family: var(--mono); font-size: 12px; white-space: nowrap; color: var(--muted); }
+.astate[data-s="done"] { color: var(--ok); }
+.astate[data-s="failed"] { color: var(--pain); }
+.astate[data-s="running"] { color: var(--gate); }
+details summary { cursor: pointer; font-size: 13px; color: var(--accent); }
+pre { margin: 8px 0 0; background: var(--sunk); border-radius: 8px; padding: 12px; font: 12.5px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow: auto; }
+.result { font-size: 13.5px; }
+.gbtns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* log */
+.log { display: grid; gap: 10px; }
+.entry { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; }
+.entry .eh { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+.entry .eh b { font-family: var(--display); font-size: 17px; font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--sunk); color: var(--muted); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.chip.no { background: var(--pain-soft); color: var(--pain); }
+.empty { border: 1px dashed var(--line); border-radius: var(--r); padding: 18px; color: var(--muted); font-size: 14px; }
+
+@media (max-width: 900px) {
+  .frame { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; display: flex; flex-wrap: wrap; gap: 4px; }
+  .rail a { grid-template-columns: 20px auto; padding: 4px 8px; }
+  .quotes, .grid2, .side { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .trow { grid-template-columns: minmax(0, 1fr); }
+  .tmeta { grid-column: 1; }
+  .doc { padding: 16px; }
+}
+@media (prefers-reduced-motion: no-preference) { .track i { transition: width .4s ease; } }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <h1>Groww Review Pulse</h1>
+      <p>Turns recent Play Store reviews into a weekly product pulse and a support-ready fee explainer, then waits for a person to approve before anything is logged or drafted.</p>
+    </div>
+    <div class="flow" aria-label="Workflow">
+      <span>reviews.csv</span>→<span>themes</span>→<span>pulse</span>→<span>fee explainer</span>→<span class="g">approval</span>→<span>log + Gmail draft</span>
+    </div>
+  </header>
+
+  <div class="frame">
+    <nav class="rail" aria-label="Pipeline stages">
+      <a href="#input" data-state="done"><span class="n">1</span>Reviews in</a>
+      <a href="#themes" data-state="done"><span class="n">2</span>Themes</a>
+      <a href="#pulse" data-state="done"><span class="n">3</span>Weekly pulse</a>
+      <a href="#fee" data-state="done"><span class="n">4</span>Fee explainer</a>
+      <a href="#gate" id="rail-gate" data-state="hold"><span class="n">5</span>Approval</a>
+      <a href="#log" id="rail-log"><span class="n">6</span>Pulse log</a>
+    </nav>
+
+    <main>
+      <!-- 1 -->
+      <section id="input">
+        <div class="sh"><span class="k">Step 1 · Input</span><h2>Reviews in</h2><span class="aside" id="src-label">Bundled sample</span></div>
+        <div class="panel" style="display:grid;gap:14px">
+          <div class="facts">
+            <div class="fact"><b class="tab" id="f-n">—</b><span>reviews</span></div>
+            <div class="fact"><b id="f-win">—</b><span>review window</span></div>
+            <div class="fact"><b class="tab" id="f-low">—</b><span>rated 1–2★</span></div>
+            <div class="fact"><b id="f-src">Google Play</b><span>India · English · com.nextbillion.groww</span></div>
+          </div>
+          <div>
+            <div class="mix" id="mix" role="img" aria-label="Rating mix"></div>
+            <div class="mixkey" id="mixkey"></div>
+          </div>
+          <div class="loader">
+            <span class="btn file">Load another reviews CSV<input type="file" id="csv" accept=".csv,text/csv" aria-label="Load another reviews CSV"></span>
+            <button class="btn" id="reset" hidden>Back to bundled sample</button>
+            <label class="note" style="display:flex;gap:6px;align-items:center">Run date <input type="date" id="rundate" style="border:1px solid var(--line);border-radius:6px;padding:3px 6px;background:var(--surface)"></label>
+            <span class="note">CSV needs <code>date</code>, <code>rating</code> and <code>text</code> columns; everything runs in your browser.</span>
+          </div>
+          <div class="err" id="csv-err" hidden></div>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section id="themes">
+        <div class="sh"><span class="k">Step 1 · Intelligence</span><h2>Five themes, top three by pain</h2></div>
+        <p class="lead">Each review is matched against a fixed lexicon for five themes (a review can hit more than one). The top three are ranked by how many 1–2★ reviews mention them, because the pulse tracks what is hurting users.</p>
+        <div class="panel" style="display:grid;gap:14px">
+          <div class="legend"><span><s style="background:var(--pain)"></s>1–2★ reviews</span><span><s style="background:color-mix(in srgb, var(--accent) 45%, var(--sunk))"></s>3–5★ reviews</span><span><s style="background:var(--ok)"></s>praise (4–5★ only)</span></div>
+          <div class="themes" id="theme-rows"></div>
+        </div>
+        <div class="grid2">
+          <div class="panel" style="display:grid;gap:8px">
+            <span class="label">Lead theme share by week</span>
+            <div class="scroll" id="weekly"></div>
+            <span class="note" id="weekly-note"></span>
+          </div>
+          <div class="panel" style="display:grid;gap:8px">
+            <span class="label">Fee or charge users misunderstand</span>
+            <div class="scroll"><table id="fee-table"><thead><tr><th>Charge</th><th class="num">Mentions</th><th class="num">Confused</th></tr></thead><tbody></tbody></table></div>
+            <span class="note" id="fee-note"></span>
+          </div>
+        </div>
+        <div>
+          <span class="label">Three real quotes, one per top theme</span>
+          <div class="quotes" id="quotes" style="margin-top:8px"></div>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section id="pulse">
+        <div class="sh"><span class="k">Step 2 · Internal output</span><h2>Weekly product pulse</h2>
+          <span class="aside"><span class="toggle" role="group" aria-label="Pulse version"><button id="v-tpl" aria-pressed="true">Template</button><button id="v-ai" aria-pressed="false" disabled>Claude draft</button></span></span></div>
+        <div class="side">
+          <article class="doc" id="pulse-doc"></article>
+          <div class="panel checks">
+            <span class="label">Checks</span>
+            <div id="pulse-checks" class="checks"></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+              <button class="btn" id="copy-pulse">Copy as Markdown</button>
+              <button class="btn" id="redraft" hidden>Redraft with Claude</button>
+            </div>
+            <span class="note" id="ai-note">Numbers, quotes and actions are generated from the data. A Claude rewrite is kept only if it passes the same checks.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section id="fee">
+        <div class="sh"><span class="k">Step 3 · Support output</span><h2 id="fee-title">Fee explainer</h2></div>
+        <p class="lead" id="fee-why"></p>
+        <div class="side">
+          <div class="panel" style="display:grid;gap:14px">
+            <ul class="bul" id="fee-bullets"></ul>
+            <div class="srcs" id="fee-sources"></div>
+            <div class="note" id="fee-checked"></div>
+            <div><button class="btn" id="copy-snippet">Copy support snippet</button></div>
+          </div>
+          <div class="panel" style="display:grid;gap:12px">
+            <span class="label">Contract-note check · delivery, NSE</span>
+            <div class="calc">
+              <label for="c-buy">Buy ₹/share<input id="c-buy" type="number" min="0" step="0.05" value="200"></label>
+              <label for="c-sell">Sell ₹/share<input id="c-sell" type="number" min="0" step="0.05" value="220"></label>
+              <label for="c-qty">Quantity<input id="c-qty" type="number" min="1" step="1" value="1"></label>
+            </div>
+            <div class="ledger" id="ledger"></div>
+            <span class="note">Estimate from Groww's published rates (depository part at ₹3.50). The contract note is final.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 -->
+      <section id="gate" class="gate" aria-labelledby="gate-h">
+        <div class="sh"><span class="k">Step 4 · MCP actions</span><h2 id="gate-h">Approval required</h2><span class="aside"><span class="gstatus" id="gstatus" data-s="waiting">Waiting for approval · nothing written yet</span></span></div>
+        <p class="lead" style="color:var(--ink)">Review the two queued actions. Nothing is logged or drafted until you approve, and the email is only ever saved as a draft.</p>
+        <div class="action">
+          <div class="top">
+            <input type="checkbox" id="a-log" checked>
+            <div style="min-width:0"><h3><label for="a-log">Append this week's entry to the Pulse log</label></h3>
+              <p class="what">Fields: date, top_themes, weekly_pulse, identified_fee_issue, explanation_bullets, source_links.</p></div>
+            <span class="astate" id="s-log">queued</span>
+          </div>
+          <details><summary>Preview entry (JSON)</summary><pre id="p-log"></pre></details>
+          <div class="result" id="r-log" hidden></div>
+        </div>
+        <div class="action">
+          <div class="top">
+            <input type="checkbox" id="a-mail" checked>
+            <div style="min-width:0"><h3><label for="a-mail">Create a Gmail draft</label></h3>
+              <p class="what" id="mail-subj"></p></div>
+            <span class="astate" id="s-mail">queued</span>
+          </div>
+          <details><summary>Preview email body</summary><pre id="p-mail"></pre></details>
+          <div class="result" id="r-mail" hidden></div>
+        </div>
+        <div class="gbtns">
+          <button class="btn primary" id="approve">Approve and run</button>
+          <button class="btn" id="reject">Reject</button>
+          <span class="note" id="cap-note">Checking which connectors this view can use…</span>
+        </div>
+      </section>
+
+      <!-- 6 -->
+      <section id="log">
+        <div class="sh"><span class="k">Step 5 · Record</span><h2>Pulse log</h2><span class="aside" id="log-aside">Shared with everyone who opens this page</span></div>
+        <div class="gbtns" id="log-tools" hidden>
+          <button class="btn" id="log-download">Download log (.md)</button>
+          <button class="btn" id="log-clear">Clear this browser's log</button>
+        </div>
+        <div class="log" id="log-list"><div class="empty" id="log-empty">Approved runs appear here, newest first, with what each action did. Approve the queued actions above to add the first entry.</div></div>
+      </section>
+      <footer class="note" style="padding-block:8px 0">Source code, n8n workflow and data: <a href="__REPO_URL__" target="_blank" rel="noopener">__REPO_URL__</a></footer>
+      <section hidden>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>/*__ENGINE__*/</script>
+<script>
+const SAMPLE = /*__DATA__*/;
+(function () {
+  "use strict";
+  const E = window.PulseEngine;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+
+  const sampleRows = SAMPLE.map((r) => ({ review_id: r[0], date: r[1], rating: r[2], helpful_count: r[3], text: r[4] }));
+  const S = { rows: sampleRows, file: null, ins: null, runDate: today(), tplMd: "", aiMd: null, useAi: false, gate: "waiting" };
+  $("rundate").value = S.runDate;
+
+  // ---------- markdown (just what the pulse uses) ----------
+  function md(src) {
+    const inl = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    const out = []; let list = null;
+    const close = () => { if (list) { out.push("</" + list + ">"); list = null; } };
+    for (const line of src.split("\n")) {
+      let m;
+      if ((m = line.match(/^# (.*)/))) { close(); out.push("<h3>" + inl(m[1]) + "</h3>"); }
+      else if ((m = line.match(/^## (.*)/))) { close(); out.push("<h4>" + inl(m[1]) + "</h4>"); }
+      else if ((m = line.match(/^\d+\. (.*)/))) { if (list !== "ol") { close(); out.push("<ol>"); list = "ol"; } out.push("<li>" + inl(m[1]) + "</li>"); }
+      else if ((m = line.match(/^- (.*)/))) { if (list !== "ul") { close(); out.push("<ul>"); list = "ul"; } out.push("<li>" + inl(m[1]) + "</li>"); }
+      else if (line.trim()) { close(); out.push("<p>" + inl(line) + "</p>"); }
+      else close();
+    }
+    close(); return out.join("");
+  }
+  async function copy(text, btn) {
+    const label = btn.textContent;
+    try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; }
+    catch (e) { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); btn.textContent = "Copied"; } catch (_) { btn.textContent = "Select and copy manually"; } ta.remove(); }
+    setTimeout(() => { btn.textContent = label; }, 1600);
+  }
+
+  // ---------- render ----------
+  const RCOL = { 1: "var(--pain)", 2: "color-mix(in srgb, var(--pain) 55%, var(--sunk))", 3: "var(--mid)", 4: "color-mix(in srgb, var(--ok) 60%, var(--sunk))", 5: "var(--ok)" };
+  function renderInput() {
+    const i = S.ins;
+    $("f-n").textContent = i.window.reviews.toLocaleString("en-IN");
+    $("f-win").textContent = E.fmtDay(i.window.from) + " – " + E.fmtDay(i.window.to, true);
+    $("f-low").textContent = i.low_star_pct + "%";
+    const n = i.window.reviews;
+    $("mix").innerHTML = [1, 2, 3, 4, 5].map((k) => '<i style="width:' + (100 * (i.rating_mix[k] || 0) / n) + "%;background:" + RCOL[k] + '"></i>').join("");
+    $("mixkey").innerHTML = [1, 2, 3, 4, 5].map((k) => '<span><s style="background:' + RCOL[k] + '"></s>' + k + "★ " + (i.rating_mix[k] || 0) + "</span>").join("");
+    $("src-label").textContent = S.file ? "Your CSV: " + S.file : "Bundled sample: 500 public reviews";
+    $("reset").hidden = !S.file;
+  }
+  function renderThemes() {
+    const i = S.ins; const max = Math.max(...i.themes.map((t) => t.reviews_mentioning));
+    $("theme-rows").innerHTML = i.themes.map((t, idx) => {
+      const praise = t.key === "ease_of_use";
+      const w = 100 * t.reviews_mentioning / max, wl = 100 * t.low_star_reviews / max;
+      const badge = idx < 3 && t.low_star_reviews > 0 ? '<span class="badge">TOP ' + (idx + 1) + "</span>" : praise ? '<span class="badge praise">BRIGHT SPOT</span>' : "";
+      const segs = praise ? '<i class="seg-praise" style="width:' + w + '%"></i>' : '<i class="seg-pain" style="width:' + wl + '%"></i><i class="seg-rest" style="width:' + (w - wl) + '%"></i>';
+      return '<div class="trow"><div class="nm">' + esc(t.short) + badge + '</div><div class="track" role="img" aria-label="' + esc(t.short) + ": " + t.reviews_mentioning + " reviews, " + t.low_star_reviews + ' at 1–2 stars">' + segs + '</div>' +
+        '<div class="tmeta tab"><b>' + t.reviews_mentioning + "</b> reviews (" + t.share_pct + "%) · " + (praise ? "" : "<b>" + t.low_star_reviews + "</b> at 1–2★ · ") + "avg " + t.avg_rating.toFixed(1) + "★</div></div>";
+    }).join("");
+
+    // weekly share of lead theme
+    const lead = i.themes[0]; const wk = i.weekly_counts; const keys = Object.keys(wk).sort();
+    const W = Math.max(360, keys.length * 54), H = 170, top = 18, bot = 36, left = 30;
+    const vals = keys.map((k) => 100 * (wk[k][lead.key] || 0) / wk[k]._total);
+    const ymax = Math.max(60, Math.ceil(Math.max(...vals) / 10) * 10);
+    const y = (v) => top + (H - top - bot) * (1 - v / ymax); const bw = (W - left - 8) / keys.length;
+    let svg = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" style="min-width:' + Math.min(W, 520) + 'px" role="img" aria-label="Share of reviews mentioning ' + esc(lead.short) + ' by ISO week">';
+    for (let g = 0; g <= ymax; g += 20) svg += '<line class="grid" x1="' + left + '" x2="' + W + '" y1="' + y(g) + '" y2="' + y(g) + '"></line><text x="' + (left - 6) + '" y="' + (y(g) + 3.5) + '" text-anchor="end">' + g + "%</text>";
+    keys.forEach((k, j) => {
+      const x = left + j * bw + bw * 0.18, wbar = bw * 0.64, v = vals[j]; const pk = k === i.lead_theme_peak.week;
+      svg += '<rect class="bar' + (pk ? " peak" : "") + '" x="' + x + '" y="' + y(v) + '" width="' + wbar + '" height="' + (y(0) - y(v)) + '" rx="2"></rect>';
+      svg += '<text class="val" x="' + (x + wbar / 2) + '" y="' + (y(v) - 4) + '" text-anchor="middle">' + Math.round(v) + "</text>";
+      svg += '<text x="' + (x + wbar / 2) + '" y="' + (H - bot + 14) + '" text-anchor="middle">' + k.slice(5) + "</text>";
+      svg += '<text x="' + (x + wbar / 2) + '" y="' + (H - bot + 27) + '" text-anchor="middle">n=' + wk[k]._total + "</text>";
+    });
+    $("weekly").innerHTML = svg + "</svg>";
+    const pk = i.lead_theme_peak;
+    $("weekly-note").textContent = "Peak (red): " + E.fmtDay(pk.start) + " – " + E.fmtDay(pk.end) + ", " + pk.share_pct + "% of that week's reviews. Weeks with fewer than 30 reviews are not eligible as the peak.";
+
+    const f = i.fee_issue; const tb = $("fee-table").querySelector("tbody");
+    tb.innerHTML = f ? f.all_fee_counts.map((c) => '<tr class="' + (c.key === f.fee_key ? "pick" : "") + '"><td>' + esc(c.label) + '</td><td class="num">' + c.mentions + '</td><td class="num">' + c.confused + "</td></tr>").join("") : '<tr><td colspan="3">No charge-related reviews found.</td></tr>';
+    $("fee-note").textContent = f ? "Ranked by reviews that mention the charge with a confusion cue (\"why\", \"don't know\", \"not clear\", \"hidden\"…). " + f.charges_theme_reviews + " reviews discuss charges overall." : "";
+
+    $("quotes").innerHTML = i.quotes.map((q) => '<blockquote><span class="label">' + esc(q.theme) + "</span><p>“" + esc(q.excerpt) + '”</p><footer><span class="stars">' + "★".repeat(q.rating) + "</span> " + E.fmtDay(q.date, true) + " · " + esc(String(q.review_id).slice(0, 8)) + "</footer></blockquote>").join("");
+  }
+  function currentPulse() { return S.useAi && S.aiMd ? S.aiMd : S.tplMd; }
+  function renderPulse() {
+    const p = currentPulse();
+    $("pulse-doc").innerHTML = md(p);
+    $("pulse-checks").innerHTML = E.validatePulse(p, S.ins).map((c) => '<div class="check' + (c.ok ? "" : " bad") + '">' + esc(c.label) + "</div>").join("");
+    $("v-tpl").setAttribute("aria-pressed", String(!S.useAi)); $("v-ai").setAttribute("aria-pressed", String(S.useAi)); $("v-ai").disabled = !S.aiMd;
+  }
+  function renderFee() {
+    const ex = E.feeExplainer(S.ins);
+    if (!ex || ex.missing) {
+      $("fee-title").textContent = "Fee explainer";
+      $("fee-why").textContent = ex ? "Detected: " + ex.fee.fee + ". There is no verified explainer for this charge yet; add one with official sources before support uses it." : "No charge-related confusion found in this CSV.";
+      $("fee-bullets").innerHTML = ""; $("fee-sources").innerHTML = ""; $("fee-checked").textContent = ""; return;
+    }
+    const f = ex.fee, kb = ex.kb;
+    $("fee-title").textContent = "Explainer: " + kb.title;
+    $("fee-why").innerHTML = "Derived from the reviews: " + f.mentions_with_confusion_cue + " of " + f.mentions + " mentions of this charge show confusion" +
+      (f.example_quote ? ", for example “" + esc(f.example_quote.excerpt) + "”" : "") + ".";
+    $("fee-bullets").innerHTML = kb.bullets.map((b) => "<li><strong>" + esc(b[0]) + "</strong> " + esc(b[1]) + "</li>").join("");
+    $("fee-sources").innerHTML = '<span class="label">Official sources</span>' + kb.sources.map((s) => '<a href="' + s[1] + '" target="_blank" rel="noopener">' + esc(s[0]) + "</a>").join("");
+    $("fee-checked").innerHTML = ex.checks.map((c) => '<div class="check' + (c.ok ? "" : " bad") + '">' + esc(c.label) + "</div>").join("");
+  }
+  function money(x) { return (x < 0 ? "−₹" : "₹") + Math.abs(x).toFixed(2); }
+  function renderLedger() {
+    const buy = Math.max(0, +$("c-buy").value || 0), sell = Math.max(0, +$("c-sell").value || 0), q = Math.max(1, Math.floor(+$("c-qty").value || 1));
+    const brk = (v) => { let b = Math.min(20, 0.001 * v); if (b < 5) b = Math.min(5, 0.025 * v); return b; };
+    const leg = (v, side) => {
+      const b = brk(v), stt = 0.001 * v, stamp = side === "buy" ? 0.00015 * v : 0, exch = 0.0000297 * v, sebi = 0.000001 * v, ipft = 0.000001 * v;
+      const dp = side === "sell" && v > 0 ? 3.5 + (v >= 100 ? 16.5 : 0) : 0; const gst = 0.18 * (b + exch + sebi + ipft + dp);
+      return { b, stt, stamp, ex: exch + sebi + ipft, dp, gst, tot: b + stt + stamp + exch + sebi + ipft + dp + gst };
+    };
+    const B = leg(buy * q, "buy"), Sx = leg(sell * q, "sell"); const gain = (sell - buy) * q, net = gain - B.tot - Sx.tot;
+    const r = (k, v) => '<div class="row"><span>' + k + "</span><span>" + money(v) + "</span></div>";
+    $("ledger").innerHTML =
+      '<div><div class="row hd"><span>Buy leg · ' + money(buy * q) + "</span><span></span></div>" + r("Brokerage", B.b) + r("STT 0.1%", B.stt) + r("Stamp duty 0.015%", B.stamp) + r("Exch + SEBI + IPFT", B.ex) + r("GST 18%", B.gst) + '<div class="row tot"><span>Buy charges</span><span>' + money(B.tot) + "</span></div></div>" +
+      '<div><div class="row hd"><span>Sell leg · ' + money(sell * q) + "</span><span></span></div>" + r("Brokerage", Sx.b) + r("STT 0.1%", Sx.stt) + r("Exch + SEBI + IPFT", Sx.ex) + r("DP charge", Sx.dp) + r("GST 18%", Sx.gst) + '<div class="row tot"><span>Sell charges</span><span>' + money(Sx.tot) + "</span></div></div>" +
+      '<div><div class="row"><span>Price gain</span><span>' + money(gain) + '</span></div><div class="row"><span>All charges</span><span>' + money(-(B.tot + Sx.tot)) + '</span></div><div class="row tot' + (net < 0 ? " neg" : "") + '"><span>Net</span><span>' + money(net) + "</span></div></div>";
+  }
+  function renderGate() {
+    const p = E.payload(S.ins, currentPulse(), S.runDate); const m = E.email(p); S.payload = p; S.mail = m;
+    $("p-log").textContent = JSON.stringify(p, null, 2);
+    $("p-mail").textContent = m.body;
+    $("mail-subj").innerHTML = "Subject: <strong>" + esc(m.subject) + "</strong> · no recipients · never sent";
+  }
+  function setGate(state, text) {
+    S.gate = state; const g = $("gstatus"); g.dataset.s = state; g.textContent = text;
+    $("rail-gate").dataset.state = state === "approved" ? "done" : "hold";
+    const locked = state === "running" || state === "approved";
+    $("approve").disabled = locked || (!$("a-log").checked && !$("a-mail").checked); $("reject").disabled = locked || state === "rejected";
+  }
+  function rerun(resetGate) {
+    S.ins = E.analyze(S.rows); S.tplMd = E.pulseMarkdown(S.ins, S.runDate); S.aiMd = null; S.useAi = false;
+    renderInput(); renderThemes(); renderPulse(); renderFee(); renderGate();
+    if (resetGate) { ["log", "mail"].forEach((k) => { $("s-" + k).textContent = "queued"; $("s-" + k).dataset.s = ""; $("r-" + k).hidden = true; });
+      setGate("waiting", "Waiting for approval · nothing written yet"); }
+  }
+
+  // ---------- inputs ----------
+  $("csv").addEventListener("change", async (e) => {
+    const f = e.target.files[0]; if (!f) return; $("csv-err").hidden = true;
+    try { const rows = E.parseCSV(await f.text()); if (rows.length < 20) throw new Error("Only " + rows.length + " usable reviews found; load at least 20.");
+      S.rows = rows; S.file = f.name + " · " + rows.length + " reviews"; rerun(true); }
+    catch (err) { $("csv-err").textContent = err.message; $("csv-err").hidden = false; }
+    e.target.value = "";
+  });
+  $("reset").addEventListener("click", () => { S.rows = sampleRows; S.file = null; rerun(true); });
+  $("rundate").addEventListener("change", (e) => { if (e.target.value) { S.runDate = e.target.value; rerun(true); } });
+  ["c-buy", "c-sell", "c-qty"].forEach((id) => $(id).addEventListener("input", renderLedger));
+  $("copy-pulse").addEventListener("click", (e) => copy(currentPulse(), e.currentTarget));
+  $("copy-snippet").addEventListener("click", (e) => { const p = S.payload; copy(p.explanation_bullets.map((b) => "• " + b).join("\n") + "\n\nSources: " + p.source_links.join(" | ") + "\nLast checked: " + E.fmtDay(E.FEE_KB.external_charges.lastChecked, true), e.currentTarget); });
+  $("v-tpl").addEventListener("click", () => { S.useAi = false; renderPulse(); renderGate(); });
+  $("v-ai").addEventListener("click", () => { if (S.aiMd) { S.useAi = true; renderPulse(); renderGate(); } });
+  ["a-log", "a-mail"].forEach((id) => $(id).addEventListener("change", () => setGate(S.gate === "approved" ? "approved" : S.gate, $("gstatus").textContent)));
+
+  rerun(false); renderLedger(); setGate("waiting", "Waiting for approval · nothing written yet");
+
+  // ---------- capabilities (light up when the viewer grants them) ----------
+  let db = null, mcp = null, sample = null, canWrite = null;
+  const C = window.claude;
+  // Standalone = opened from a normal web host (GitHub Pages), not inside Claude. Then the log is kept in
+  // this browser and the draft opens in Gmail's own compose window (Gmail keeps it in Drafts; nothing is sent).
+  const STANDALONE = !(C && C.use);
+  const LOG_KEY = "groww-review-pulse-log";
+  const readLocal = () => { try { return JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch (_) { return []; } };
+  const writeLocal = (list) => { try { localStorage.setItem(LOG_KEY, JSON.stringify(list)); return true; } catch (_) { return false; } };
+  const localLog = [];
+  function renderLocalLog() {
+    $("log-list").querySelectorAll(".entry").forEach((n) => n.remove());
+    const list = localLog.slice().sort((a, b) => String(b.approved_at).localeCompare(String(a.approved_at)));
+    $("log-empty").hidden = list.length > 0;
+    for (const e of list) $("log-list").appendChild(entryEl(e));
+    $("rail-log").dataset.state = list.length ? "done" : "";
+  }
+  function gmailComposeUrl(m) { return "https://mail.google.com/mail/?view=cm&fs=1&su=" + encodeURIComponent(m.subject) + "&body=" + encodeURIComponent(m.body); }
+  function emlUrl(m) {
+    const b64 = (s) => btoa(unescape(encodeURIComponent(s)));
+    const eml = "Subject: =?UTF-8?B?" + b64(m.subject) + "?=\r\nX-Unsent: 1\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n" +
+      "Content-Transfer-Encoding: 8bit\r\n\r\n" + m.body.replace(/\n/g, "\r\n") + "\r\n";
+    return URL.createObjectURL(new Blob([eml], { type: "message/rfc822" }));
+  }
+  if (STANDALONE) {
+    localLog.push(...readLocal());
+    $("log-aside").textContent = "Saved in this browser only";
+    $("log-tools").hidden = false;
+    $("ai-note").textContent = "This page shows the data-driven pulse. The free-LLM polish step runs in the n8n workflow (Gemini free tier or Ollama).";
+    renderLocalLog();
+    $("log-download").addEventListener("click", () => {
+      const md = ["# Groww Weekly Pulse Log", ""].concat(localLog.map((e) => [
+        "## Entry — " + E.fmtDay(e.date, true), "", "**date:** " + e.date, "", "**top_themes:**", ...e.top_themes.map((t, i) => (i + 1) + ". " + t), "",
+        "**identified_fee_issue:** " + e.identified_fee_issue, "", "**weekly_pulse:**", "", e.weekly_pulse, "**explanation_bullets:**",
+        ...e.explanation_bullets.map((b) => "- " + b), "", "**source_links:**", ...e.source_links.map((u) => "- " + u), ""].join("\n"))).join("\n");
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
+      a.download = "groww_weekly_pulse_log.md"; document.body.appendChild(a); a.click(); a.remove();
+    });
+    $("log-clear").addEventListener("click", () => {
+      if ($("log-clear").dataset.armed !== "1") { $("log-clear").dataset.armed = "1"; $("log-clear").textContent = "Click again to clear"; return; }
+      localLog.length = 0; writeLocal([]); renderLocalLog(); $("log-clear").dataset.armed = ""; $("log-clear").textContent = "Clear this browser's log";
+    });
+  }
+  const capNote = () => {
+    if (STANDALONE) {
+      $("cap-note").textContent = "On this site: the log is saved in your browser, and the draft opens in Gmail's compose window (it stays in Drafts; nothing is sent).";
+      setGate(S.gate, $("gstatus").textContent); return;
+    }
+    const parts = [];
+    parts.push(db ? (canWrite === false ? "Pulse log is read-only for you" : "Pulse log ready") : "Pulse log unavailable in this view");
+    parts.push(mcp ? "Gmail via your connector" : "Gmail connector unavailable in this view");
+    $("cap-note").textContent = parts.join(" · ");
+    if (!db || canWrite === false) { $("a-log").checked = false; $("a-log").disabled = true; }
+    if (!mcp) { $("a-mail").checked = false; $("a-mail").disabled = true; }
+    setGate(S.gate, $("gstatus").textContent);
+  };
+  if (C && C.use) {
+    Promise.all([C.use("db").catch(() => null), C.use("mcp").catch(() => null), C.use("sample").catch(() => null), C.use("user").catch(() => null)]).then(async ([d, m, s, u]) => {
+      db = d; mcp = m; sample = s;
+      if (u) { try { canWrite = await u.can("data.write"); } catch (_) { canWrite = null; } }
+      capNote();
+      if (sample) $("redraft").hidden = false;
+      if (db) subscribeLog();
+    });
+  } else { capNote(); }
+
+  // ---------- pulse log (db) ----------
+  function subscribeLog() {
+    db.collection("pulse_log").orderBy("approved_at", "desc").limit(25).onSnapshot((snap) => {
+      $("log-empty").hidden = !snap.empty;
+      $("log-list").querySelectorAll(".entry").forEach((n) => n.remove());
+      for (const d of snap.docs) $("log-list").appendChild(entryEl(d.data()));
+      if (!snap.empty) $("rail-log").dataset.state = "done";
+    }, () => { $("log-empty").textContent = "The log could not be loaded in this view."; });
+  }
+  function entryEl(e) {
+    const el = document.createElement("article"); el.className = "entry";
+    const a = e.actions || {};
+    const chip = (ok, text) => '<span class="chip ' + (ok ? "ok" : "no") + '">' + esc(text) + "</span>";
+    const acts = [];
+    if (a.doc_append) acts.push(chip(a.doc_append.status === "done", a.doc_append.label || "Logged"));
+    if (a.email_draft) acts.push(chip(a.email_draft.status === "done", a.email_draft.label || "Gmail draft"));
+    const at = typeof e.approved_at === "string" ? e.approved_at : "";
+    const when = at.length === 10 ? E.fmtDay(at, true) : at ? new Date(at).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "";
+    el.innerHTML = '<div class="eh"><b>' + esc(e.date ? E.fmtDay(e.date, true) : "Undated") + '</b><span class="note">' +
+      (when ? "approved " + esc(when) : "") + (e.via ? " · " + esc(e.via) : "") + "</span></div>" +
+      '<div class="note"><strong style="color:var(--ink)">Fee issue:</strong> ' + esc(e.identified_fee_issue || "—") + "</div>" +
+      '<div class="chips">' + (e.top_themes || []).map((t, i) => '<span class="chip">' + (i + 1) + ". " + esc(String(t).split(":")[0].split(" (")[0]) + "</span>").join("") + "</div>" +
+      '<div class="chips">' + acts.join("") + (e.doc_url ? ' <a class="note" href="' + esc(e.doc_url) + '" target="_blank" rel="noopener">Open doc</a>' : "") + "</div>" +
+      '<details><summary>Entry fields</summary><pre>' + esc(JSON.stringify({ date: e.date, top_themes: e.top_themes, weekly_pulse: e.weekly_pulse, identified_fee_issue: e.identified_fee_issue, explanation_bullets: e.explanation_bullets, source_links: e.source_links }, null, 2)) + "</pre></details>";
+    return el;
+  }
+
+  // ---------- approval gate ----------
+  const MAIL_ERR = {
+    server_not_connected: "Gmail isn't connected for you. Add it in claude.ai Settings → Connectors, then approve again.",
+    selection_required: "You have more than one Gmail connector. Pick one in the prompt, then approve again.",
+    needs_reauth: "Gmail needs to be reconnected. Reconnect it in claude.ai Settings → Connectors, then approve again.",
+    not_in_manifest: "Gmail isn't allowed for this page in your view. Turn it on in the page's permissions to create drafts.",
+    approval_required: "The draft needs your OK in the connector prompt. Approve again and choose Allow.",
+    blocked_by_policy: "Your organization blocks this Gmail action.",
+    server_unavailable: "Gmail didn't answer in time. The draft may or may not exist; check Gmail Drafts before approving again.",
+    upstream_error: "Gmail returned an error. Check Gmail Drafts before approving again.",
+  };
+  function setAct(k, state, label, html) { const s = $("s-" + k); s.dataset.s = state; s.textContent = label; if (html !== undefined) { $("r-" + k).innerHTML = html; $("r-" + k).hidden = false; } }
+
+  function approveStandalone() {
+    const doLog = $("a-log").checked, doMail = $("a-mail").checked;
+    if (!doLog && !doMail) return;
+    setGate("running", "Approved · running");
+    const p = S.payload, m = S.mail, actions = {};
+    if (!doLog) setAct("log", "", "skipped"); if (!doMail) setAct("mail", "", "skipped");
+    if (doMail) {
+      const url = gmailComposeUrl(m);
+      const win = window.open(url, "_blank", "noopener");     // inside the click, so popup blockers allow it
+      setAct("mail", "done", "draft opened",
+        "Gmail's compose window " + (win === null ? "may have been blocked; use the link: " : "opened in a new tab. Close it and it stays in Drafts (not sent). ") +
+        '<a href="' + esc(url) + '" target="_blank" rel="noopener">Open Gmail draft</a> · <a href="' + emlUrl(m) + '" download="groww_weekly_pulse_draft.eml">Download .eml draft</a>');
+      actions.email_draft = { status: "done", label: "Gmail draft opened" };
+    }
+    if (doLog) {
+      localLog.push(Object.assign({}, p, { approved_at: new Date().toISOString(), via: "Web prototype approval gate",
+        input: { reviews: S.ins.window.reviews, from: S.ins.window.from, to: S.ins.window.to, file: S.file || "bundled sample" },
+        actions: Object.assign({ doc_append: { status: "done", label: "Appended to Pulse log" } }, actions) }));
+      const saved = writeLocal(localLog);
+      renderLocalLog();
+      setAct("log", "done", "appended", 'Added to the <a href="#log">Pulse log</a> below' + (saved ? " (saved in this browser)." : ". This browser blocks storage, so it lasts until you close the page."));
+    }
+    setGate("approved", "Approved · actions complete");
+    ["log", "mail"].forEach((k) => { if ($("s-" + k).dataset.s === "done") { $("a-" + k).checked = false; $("a-" + k).disabled = true; } });
+  }
+
+  $("approve").addEventListener("click", async () => {
+    if (STANDALONE) return approveStandalone();
+    const doLog = $("a-log").checked && !!db, doMail = $("a-mail").checked && !!mcp;
+    if (!doLog && !doMail) return;
+    setGate("running", "Approved · running");
+    const p = S.payload, m = S.mail, actions = {};
+    if (!doLog) setAct("log", "", "skipped"); if (!doMail) setAct("mail", "", "skipped");
+
+    if (doMail) {
+      setAct("mail", "running", "creating draft…");
+      try {
+        const res = await mcp.callTool("Gmail", "create_draft", { subject: m.subject, body: m.body });
+        const pl = res && res.payload && typeof res.payload === "object" ? res.payload : {};
+        const link = pl.viewUrl ? ' <a href="' + esc(pl.viewUrl) + '" target="_blank" rel="noopener">Open in Gmail</a>' : "";
+        setAct("mail", "done", "draft created", "Saved to Gmail Drafts, not sent." + link);
+        actions.email_draft = { status: "done", label: "Gmail draft created", draft_id: pl.id || null };
+      } catch (e) {
+        const code = e && e.code; const msg = code === "tool_error" ? "Gmail reported: " + (e.message || "an error") : MAIL_ERR[code] || "The draft could not be created (" + (code || "error") + ").";
+        setAct("mail", "failed", "not created", '<span class="err">' + esc(msg) + "</span>");
+        actions.email_draft = { status: "failed", label: "Gmail draft failed", code: code || "unknown" };
+      }
+    }
+    if (doLog) {
+      setAct("log", "running", "appending…");
+      try {
+        await db.collection("pulse_log").add(Object.assign({}, p, { approved_at: new Date().toISOString(), via: "Prototype approval gate",
+          input: { reviews: S.ins.window.reviews, from: S.ins.window.from, to: S.ins.window.to, file: S.file || "bundled sample" },
+          actions: Object.assign({ doc_append: { status: "done", label: "Appended to Pulse log" } }, actions) }));
+        setAct("log", "done", "appended", 'Added to the <a href="#log">Pulse log</a> below.');
+      } catch (e) {
+        const msg = e && e.code === "invalid_argument" ? "Your access can't write to this log. Ask the owner for Contributor access." : e && e.code === "quota_exceeded" ? "The log is full. Ask the owner to remove old entries." : "The entry could not be saved (" + ((e && e.code) || "error") + "). Try again.";
+        setAct("log", "failed", "not saved", '<span class="err">' + esc(msg) + "</span>");
+      }
+    }
+    const failed = ["log", "mail"].some((k) => $("s-" + k).dataset.s === "failed");
+    setGate(failed ? "waiting" : "approved", failed ? "Approved · some actions failed" : "Approved · actions complete");
+    // Done actions are locked so a retry never repeats them (no duplicate drafts or entries).
+    ["log", "mail"].forEach((k) => { if ($("s-" + k).dataset.s === "done") { $("a-" + k).checked = false; $("a-" + k).disabled = true; } });
+    if (failed) { $("approve").disabled = false; $("approve").textContent = "Retry failed actions"; }
+  });
+  $("reject").addEventListener("click", () => {
+    setGate("rejected", "Rejected · no actions taken");
+    setAct("log", "", "not run"); setAct("mail", "", "not run");
+    $("approve").disabled = false; $("approve").textContent = "Approve and run";
+    if (STANDALONE) ["log", "mail"].forEach((k) => { $("a-" + k).disabled = false; $("a-" + k).checked = true; });
+  });
+
+  // ---------- optional: Claude rewrite of the pulse ----------
+  $("redraft").addEventListener("click", async (e) => {
+    const btn = e.currentTarget; btn.disabled = true; btn.textContent = "Claude is drafting…"; $("ai-note").textContent = "Drafting…";
+    const i = S.ins;
+    const prompt = "You are a product analyst writing an internal weekly product pulse for Groww's product team.\n" +
+      "Rewrite the DRAFT below for clarity. Hard rules: output Markdown only; keep the exact section headings (# title, ## Top themes (ranked by 1–2★ volume), ## Voice of the user, ## Key observation, ## Action ideas); " +
+      "keep every number unchanged; keep each quoted user sentence exactly as written inside double quotes; exactly 3 numbered action ideas, each starting with a **bold label:**; at most 230 words; neutral tone; no new facts.\n\n" +
+      "DATA (JSON): " + JSON.stringify({ themes: i.themes, quotes: i.quotes, fee_issue: { fee: i.fee_issue && i.fee_issue.fee, mentions: i.fee_issue && i.fee_issue.mentions, confused: i.fee_issue && i.fee_issue.mentions_with_confusion_cue }, peak: i.lead_theme_peak, regression: i.regression_signal }) +
+      "\n\nDRAFT:\n" + S.tplMd;
+    try {
+      const r = await sample(prompt, { modelTier: "default" });
+      const text = (r.text || "").replace(/^```(?:markdown)?\s*/i, "").replace(/```\s*$/, "").trim() + "\n";
+      const checks = E.validatePulse(text, i);
+      if (checks.every((c) => c.ok)) { S.aiMd = text; S.useAi = true; renderPulse(); renderGate(); $("ai-note").textContent = "Showing Claude's draft. It passed every check; switch back to Template any time."; }
+      else { $("ai-note").textContent = "Claude's draft failed a check (" + checks.filter((c) => !c.ok).map((c) => c.label).join("; ") + "), so the template stays."; }
+    } catch (err) {
+      const code = err && err.code;
+      if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(code)) { btn.hidden = true; $("ai-note").textContent = "Claude isn't available to this page in your view; the template pulse is complete on its own."; }
+      else $("ai-note").textContent = code === "rate_limited" ? "Too many requests right now. Try again in a minute." : "Claude couldn't finish the draft (" + (code || "error") + "). The template stays.";
+    }
+    btn.disabled = false; btn.textContent = "Redraft with Claude";
+  });
+})();
+</script>

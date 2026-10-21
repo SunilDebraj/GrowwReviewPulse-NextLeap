@@ -1,0 +1,701 @@
+{
+  "name": "Groww Review Pulse (free)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Groww Review Pulse (free stack)\nPlay Store reviews → themes → weekly pulse + fee explainer → **human approval** → Google Doc entry + Gmail draft.\n\nRuns on **self-hosted n8n (free)**. No Apify, no paid LLM.\n**Setup:** fill in **Config**; add credentials on *Free LLM* (Gemini free key, or any text for Ollama), both Gmail nodes and Google Docs.",
+        "height": 240,
+        "width": 520,
+        "color": 7
+      },
+      "id": "fa702f70-93c3-5052-8241-853ecbc26ba1",
+      "name": "Note: overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Step 1 · Review intelligence\nUpload a CSV (form), or every Monday fetch the last 12 weeks straight from Google Play (free). Max 5 themes, top 3 by 1–2★ volume, 3 real quotes, the most-confused fee.",
+        "height": 160,
+        "width": 780,
+        "color": 5
+      },
+      "id": "f1cff86c-dc59-50c5-a34b-b68c107d249e",
+      "name": "Note: step 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        300,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Step 2–3 · Pulse + fee explainer\nA free LLM (Gemini free tier, or Ollama on your computer) may tighten the pulse. A validator keeps its draft only if it is ≤250 words, keeps the 3 quotes verbatim, keeps every number and has 3 actions; otherwise the data-driven template is used. Fee facts come only from the verified knowledge base.",
+        "height": 180,
+        "width": 700,
+        "color": 4
+      },
+      "id": "8c4564cf-975a-5772-b3cd-a024963ad7c5",
+      "name": "Note: step 2-3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Step 4 · APPROVAL GATE\nThe workflow **pauses** here and emails the approver the full pulse and explainer with **Approve / Reject** buttons. Nothing is written to the doc or Gmail until someone clicks Approve. Times out after 3 days → nothing written.",
+        "height": 180,
+        "width": 560,
+        "color": 3
+      },
+      "id": "f9f98ace-22ac-5174-8303-dc1cf199c884",
+      "name": "Note: approval",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Step 5 · Actions after approval\n1. Append {date, top_themes, weekly_pulse, identified_fee_issue, explanation_bullets, source_links} to the Google Doc.\n2. Create a Gmail **draft** (no recipients; never sent).",
+        "height": 160,
+        "width": 640,
+        "color": 6
+      },
+      "id": "3890d4b5-8c94-5663-a0cd-c07a26887ee3",
+      "name": "Note: actions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2460,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "7b4c77ce-8c5d-5e48-82fc-bd778dafafbb",
+      "name": "Every Monday 09:00 IST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "Groww Review Pulse",
+        "formDescription": "Upload a Play Store reviews CSV (columns: date, rating, text; review_id and helpful_count optional). The pulse and fee explainer are emailed to the approver before anything is logged or drafted.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Reviews CSV",
+              "fieldName": "Reviews_CSV",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".csv",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "onReceived",
+        "options": {
+          "respondWithOptions": {
+            "values": {
+              "respondWith": "text",
+              "formSubmittedText": "Got it. The pulse is being generated; the approver will get an email to approve or reject."
+            }
+          }
+        }
+      },
+      "id": "3fb1402c-b402-5db9-905d-96beee268b7e",
+      "name": "Upload reviews CSV",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        220
+      ],
+      "webhookId": "e9f973a4-bc77-57bf-af1c-8e109944284c"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "59ef556d-c5e6-58c2-83d8-fada4f1cdaa1",
+              "name": "approverEmail",
+              "value": "you@example.com",
+              "type": "string"
+            },
+            {
+              "id": "bf32a355-99e2-59ce-b314-9f3b9511a679",
+              "name": "googleDocId",
+              "value": "PASTE_GOOGLE_DOC_ID_OR_URL",
+              "type": "string"
+            },
+            {
+              "id": "64acea2a-f46a-5f4c-831d-14cfe2fda636",
+              "name": "llmBaseUrl",
+              "value": "https://generativelanguage.googleapis.com/v1beta/openai",
+              "type": "string"
+            },
+            {
+              "id": "1f0b500d-73b5-5e33-9a37-de08b6012413",
+              "name": "llmModel",
+              "value": "gemini-3.8-flash",
+              "type": "string"
+            },
+            {
+              "id": "26d39447-41cb-5704-a634-4e1e278c1505",
+              "name": "appId",
+              "value": "com.nextbillion.groww",
+              "type": "string"
+            },
+            {
+              "id": "a1e16ad1-e37d-5d27-a765-c492102c2614",
+              "name": "country",
+              "value": "in",
+              "type": "string"
+            },
+            {
+              "id": "04afc888-2267-5357-8960-e0628dccb2aa",
+              "name": "lang",
+              "value": "en",
+              "type": "string"
+            },
+            {
+              "id": "f2f29578-d646-54a6-a4e0-1c4ad23ff863",
+              "name": "playSort",
+              "value": "most_relevant",
+              "type": "string"
+            },
+            {
+              "id": "17389786-4a8f-59c7-9188-1724f3d9c21f",
+              "name": "recentDays",
+              "value": 84,
+              "type": "number"
+            },
+            {
+              "id": "9c896e84-eacf-56b9-a660-a7f5e80d78b7",
+              "name": "maxReviews",
+              "value": 500,
+              "type": "number"
+            },
+            {
+              "id": "8efcd74b-dda1-5130-9d8c-eb6592ba1313",
+              "name": "maxPages",
+              "value": 30,
+              "type": "number"
+            },
+            {
+              "id": "04d92cd1-3bb5-56a0-bda7-c185afa602de",
+              "name": "playBaseUrl",
+              "value": "https://play.google.com",
+              "type": "string"
+            },
+            {
+              "id": "c0a61392-3ccf-55bc-b0ed-8252a3882998",
+              "name": "runDate",
+              "value": "={{ $now.setZone('Asia/Kolkata').toISODate() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "all",
+        "options": {
+          "stripBinary": false
+        }
+      },
+      "id": "76f6811d-78bf-5123-a00a-d06970937760",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bdd4eef2-4f55-5cd9-9053-4eff7861e418",
+              "leftValue": "={{ Object.keys($binary || {}).length > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "f11ebae3-1e55-594f-8acd-6baca07a0925",
+      "name": "CSV uploaded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- Fetch reviews from Google Play (free, no account) -----------------------\n// Uses the public endpoint the Play Store web page itself calls, the same request as the\n// open-source google-play-scraper (v10.1.4). Pages through \"most relevant\" (or newest)\n// reviews, keeps those from the last `recentDays`, stops at `maxReviews` or `maxPages`.\nconst cfg = $(\"Config\").first().json;\nconst BASE = String(cfg.playBaseUrl || \"https://play.google.com\").replace(/\\/$/, \"\");\nconst RPC = \"oCPfdb\";\nconst SORT = { most_relevant: 1, newest: 2, rating: 3 }[cfg.playSort] || 1;\nconst cutoff = new Date(cfg.runDate + \"T00:00:00Z\").getTime() - cfg.recentDays * 864e5;\nconst url = `${BASE}/_/PlayStoreUi/data/batchexecute?rpcids=${RPC}&hl=${encodeURIComponent(cfg.lang)}&gl=${encodeURIComponent(cfg.country)}`;\n\nconst out = [];\nlet token = null, pages = 0, scanned = 0;\nwhile (out.length < cfg.maxReviews && pages < cfg.maxPages) {\n  const paging = token ? [150, null, token] : [150];\n  const request = [null, [2, SORT, paging, null, [null, null, null, null, null, null, null, null, null]], [cfg.appId, 7]];\n  const body = \"f.req=\" + encodeURIComponent(JSON.stringify([[[RPC, JSON.stringify(request), null, \"generic\"]]]));\n  let raw;\n  try {\n    raw = await this.helpers.httpRequest({\n      method: \"POST\", url, body, json: false, encoding: \"text\", timeout: 30000,\n      headers: { \"Content-Type\": \"application/x-www-form-urlencoded;charset=UTF-8\" },\n    });\n  } catch (e) {\n    if (pages === 0) throw new Error(\"Google Play did not answer (\" + (e.message || e) + \"). Upload a CSV through the form instead.\");\n    break;                                        // keep what we already have\n  }\n  const text = typeof raw === \"string\" ? raw : Buffer.isBuffer(raw) ? raw.toString(\"utf8\") : JSON.stringify(raw);\n  let data = null;\n  try { const outer = JSON.parse(text.substring(text.indexOf(\"[\"))); data = outer[0] && outer[0][2] ? JSON.parse(outer[0][2]) : null; }\n  catch (e) { throw new Error(\"Google Play changed its response format, so reviews could not be read. Upload a CSV through the form instead.\"); }\n  pages++;\n  if (!data || !Array.isArray(data[0])) break;\n  for (const r of data[0]) {\n    scanned++;\n    const when = r[5] ? Number(r[5][0]) * 1000 : NaN;\n    if (!r[4] || !(when >= cutoff)) continue;\n    out.push({ review_id: String(r[0]), date: new Date(when).toISOString().slice(0, 10), rating: Number(r[2]) || 0,\n               helpful_count: Number(r[6]) || 0, app_version: r[10] || \"\", text: String(r[4]) });\n    if (out.length >= cfg.maxReviews) break;\n  }\n  token = data[1] && data[1][1];\n  if (!token) break;\n  if (SORT === 2 && out.length && data[0].length && Number((data[0][data[0].length - 1][5] || [0])[0]) * 1000 < cutoff) break;\n  await new Promise((r) => setTimeout(r, 400));   // be polite: one request at a time\n}\nconst source = `Google Play (${cfg.appId}, ${cfg.country}/${cfg.lang}, ${cfg.playSort}): ${out.length} of ${scanned} reviews scanned in ${pages} page(s)`;\nreturn out.map((r) => ({ json: { ...r, source } }));\n"
+      },
+      "id": "d0804c5f-e050-58c6-9c0d-ecddab01788a",
+      "name": "Fetch reviews (Google Play, free)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        220
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- shared review-pulse engine (same as prototype/engine.js) ----\nconst E = (function () {\n  \"use strict\";\n\n  const THEMES = {\n    reliability: {\n      label: \"App reliability: update regressions, charts & order glitches\", short: \"App reliability\",\n      patterns: [/\\bupdat(e|ed|es|ing)\\b/, /\\bbug/, /glitch/, /\\blag/, /\\bslow\\b/, /\\bhang/, /\\bstuck\\b/, /crash/,\n        /\\bfreez/, /not (opening|loading|working)/, /\\bchart/, /\\bcandle/, /scalp/, /back button/, /navigation/,\n        /\\brefresh/, /\\bindicator/, /stop ?loss/, /\\bsl\\b/, /square ?off/, /(not|wasn't) executed/, /\\bexecution\\b/,\n        /position/, /\\bbuffering\\b/, /not updat/],\n    },\n    support: {\n      label: \"Customer support hard to reach / issues unresolved\", short: \"Customer support\",\n      patterns: [/customer (care|support|service)/, /\\bsupport\\b/, /help ?line/, /\\bon hold\\b/, /\\bhold for\\b/,\n        /\\bticket/, /\\bagents?\\b/, /no (one )?(reply|response|respond)/, /not (responding|respond)/, /\\bcall back\\b/,\n        /chat (support|option|service)/, /\\bivr\\b/, /\\bmailed\\b/, /waiting .*connect/, /\\bai (bot|chatbot|help)\\b/],\n    },\n    charges: {\n      label: \"Charges & deductions not understood (brokerage, 'external charges & taxes', DP)\", short: \"Charges & deductions\",\n      patterns: [/\\bcharg(e|es|ed|ing)\\b/, /brokerage/, /brokarage/, /brockerage/, /\\bfees?\\b/, /\\bdp\\b/, /\\bdeduct/,\n        /\\btax(es)?\\b/, /\\bgst\\b/, /\\bstt\\b/, /hidden/, /commission/, /haircut/, /\\binterest\\b/, /\\bpenalty\\b/],\n    },\n    account_money: {\n      label: \"Account, KYC & money movement (activation, withdrawals, payments)\", short: \"Account & money movement\",\n      patterns: [/\\bkyc\\b/, /account (opening|activation|reactivat|closure|is|blocked|details|creation)/,\n        /(activate|reactivat|deactivat)/, /withdraw/, /\\bredeem|redemption/, /\\bpayment/, /\\bupi\\b/, /mandate/,\n        /\\brefund/, /\\bpan\\b/, /aadh?ar/, /e-?mail (id|address)/, /\\bblocked\\b/, /demat account/, /journey reset/,\n        /allow permission/, /\\blog ?in\\b/],\n    },\n    ease_of_use: {\n      label: \"Praise: simple, beginner-friendly investing\", short: \"Ease of use (praise)\",\n      patterns: [/easy/, /simple/, /user[- ]?friendly/, /beginner/, /smooth/, /\\bclean\\b/, /intuitive/, /\\bbest\\b/,\n        /\\bgreat\\b/, /excellent/, /\\bnice\\b/, /\\bgood app\\b/, /convenient/],\n      minRating: 4,\n    },\n  };\n\n  const FEE_TERMS = {\n    external_charges: [/external charge/, /\\btax(es)?\\b/, /\\bgst\\b/, /\\bstt\\b/, /hidden charge/, /other charges/, /deduction/, /\\bdeduct/],\n    brokerage: [/brokerage/, /brokarage/, /brockerage/, /per order/],\n    dp_charge: [/\\bdp\\b/, /selling stocks/, /sell order/, /delivery sell/],\n    mtf_interest: [/\\bmtf\\b/, /haircut/],\n    service_fees: [/\\bddpi\\b/, /change ur email/],\n  };\n  const FEE_LABELS = {\n    external_charges: \"\\\"External charges & taxes\\\" deducted on top of brokerage\",\n    brokerage: \"Brokerage per executed order\",\n    dp_charge: \"DP charge on delivery sells\",\n    mtf_interest: \"MTF interest / haircut\",\n    service_fees: \"Account-service fees (DDPI, email change)\",\n  };\n  const CONFUSION_CUES = [/not (clear|easy to understand)/, /don'?t know/, /donot know/, /hidden/,\n    /without (any|ur|your) (information|use|knowledge)/, /\\bwhy\\b/, /\\?/, /more th[ae]n (they|you) mention/,\n    /you mentioned/, /not (clearly )?(informed|disclosed)/, /bla bla/, /silently/, /unexpected/, /misleading/, /expected/];\n  const REGRESSION = /scalp|navigation|back button/;\n\n  const THEME_NOTES = {\n    reliability: \"Chart-screen regressions after updates, stale prices, stuck orders.\",\n    support: \"Long IVR holds, AI-bot loops, tickets closed unresolved.\",\n    charges: \"Deductions exceed the \\\"₹20 brokerage\\\" users expect.\",\n    account_money: \"Activation/KYC delays, slow withdrawals, failed payments.\",\n    ease_of_use: \"Simple, beginner-friendly investing.\",\n  };\n  const ACTIONS = {\n    reliability: [\"Chart hotfix:\", \"move the Scalper toggle away from Back, keep the nav bar visible, add an opt-out.\"],\n    support: [\"Support SLA:\", \"show real queue times, offer callback, no ticket closure without a human reply.\"],\n    charges: [\"Charge clarity:\", \"itemized pre-trade charge preview; link the fee explainer from P&L.\"],\n    account_money: [\"Money movement:\", \"show withdrawal/activation status with an ETA and a single tracking ID.\"],\n  };\n  const QUOTE_SPECS = {\n    reliability: [[/scalp/], /scalp/], support: [[/hold/], /hold/], charges: [[/deduct/, /not clear/], /not clear/],\n    account_money: [[/withdraw/], /withdraw/], ease_of_use: [[/beginner/], /beginner/],\n  };\n\n  // Facts verified against official pages on 13 Oct 2026 (see sources).\n  const FEE_KB = {\n    external_charges: {\n      title: \"\\\"External charges & taxes\\\" on Groww stock trades\",\n      bullets: [\n        [\"Two kinds of deductions apply to every trade.\", \"Groww's own brokerage, and levies set by the government, exchanges, SEBI and the depository. Groww lists the second group on its pricing page as Regulatory & Statutory Charges; in the app they appear separately from brokerage.\"],\n        [\"Brokerage (stocks):\", \"₹20 or 0.1% of order value per executed order, whichever is lower; if that is under ₹5, the charge is the lower of ₹5 or 2.5% of trade value. F&O: ₹20 per executed order.\"],\n        [\"Statutory and exchange levies (equity):\", \"STT is 0.1% on buy and sell for delivery and 0.025% on sell for intraday; stamp duty is 0.015% (delivery) or 0.003% (intraday) on buy; NSE transaction charge 0.00297%; SEBI turnover fee 0.0001%; GST 18% on brokerage, DP, exchange, SEBI and IPFT charges.\"],\n        [\"DP charge on delivery sells:\", \"₹20 per sell transaction (₹3.50 depository + ₹16.50 Groww; depository part ₹3.25 for women), plus GST. Not charged on intraday. Groww's portion is ₹0 for debit values under ₹100.\"],\n        [\"Why small trades feel it most:\", \"the ₹5 minimum brokerage and ₹20 DP charge do not scale with trade size. Example: 1 share bought at ₹200 and sold at ₹220 (delivery, NSE) carries about ₹36 in total charges, more than the ₹20 price gain.\"],\n        [\"Where to see exact amounts:\", \"the app shows an estimate on the trading day; final, itemized charges are in the contract note emailed as a PDF (password: PAN in capitals), with DP charges in a separate statement in the same PDF.\"],\n      ],\n      sources: [[\"Groww — Pricing\", \"https://groww.in/pricing\"],\n        [\"Groww Help — How much is the brokerage?\", \"https://groww.in/help/stocks/searchable/how-much-is-the-brokerage\"]],\n      lastChecked: \"2026-10-13\",\n    },\n  };\n\n  const MONTHS = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  function parseISO(s) { const [y, m, d] = s.split(\"-\").map(Number); return new Date(Date.UTC(y, m - 1, d)); }\n  function fmtDay(iso, year) { const d = parseISO(iso); return d.getUTCDate() + \" \" + MONTHS[d.getUTCMonth()] + (year ? \" \" + d.getUTCFullYear() : \"\"); }\n  function isoWeek(iso) {\n    const d = parseISO(iso); const day = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - day);\n    const y = d.getUTCFullYear(); const w = Math.ceil(((d - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7);\n    return [y, w];\n  }\n  function weekBounds(y, w) {\n    const jan4 = new Date(Date.UTC(y, 0, 4)); const day = jan4.getUTCDay() || 7;\n    const mon = new Date(jan4); mon.setUTCDate(jan4.getUTCDate() - day + 1 + (w - 1) * 7);\n    const sun = new Date(mon); sun.setUTCDate(mon.getUTCDate() + 6);\n    const f = (x) => x.toISOString().slice(0, 10); return [f(mon), f(sun)];\n  }\n  const round1 = (x) => Math.round(x * 10) / 10;\n  const pyRound = (x) => { const f = Math.floor(x); const r = x - f; return r > 0.5 || (r === 0.5 && f % 2 === 1) ? f + 1 : f; };\n  const hits = (t, pats) => pats.reduce((n, p) => n + (p.test(t) ? 1 : 0), 0);\n\n  function excerpt(text, anchor, maxWords) {\n    maxWords = maxWords || 22;\n    for (const s of text.split(/(?<=[.!?])\\s+/)) {\n      if (anchor.test(s.toLowerCase())) {\n        const w = s.split(/\\s+/).filter(Boolean);\n        return w.length > maxWords ? w.slice(0, maxWords).join(\" \") + \" …\" : s;\n      }\n    }\n    return text.split(/\\s+/).slice(0, maxWords).join(\" \") + \" …\";\n  }\n\n  // --- CSV ------------------------------------------------------------------\n  function parseCSV(src) {\n    const rows = []; let row = [], f = \"\", q = false;\n    for (let i = 0; i < src.length; i++) {\n      const c = src[i];\n      if (q) { if (c === '\"') { if (src[i + 1] === '\"') { f += '\"'; i++; } else q = false; } else f += c; }\n      else if (c === '\"') q = true;\n      else if (c === \",\") { row.push(f); f = \"\"; }\n      else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && src[i + 1] === \"\\n\") i++; row.push(f); rows.push(row); row = []; f = \"\"; }\n      else f += c;\n    }\n    if (f.length || row.length) { row.push(f); rows.push(row); }\n    const head = rows.shift().map((h) => h.trim().toLowerCase());\n    const col = (names) => names.map((n) => head.indexOf(n)).find((i) => i >= 0);\n    const ix = { id: col([\"review_id\", \"reviewid\", \"id\"]), date: col([\"date\", \"at\", \"review_date\"]),\n      rating: col([\"rating\", \"score\", \"stars\"]), text: col([\"text\", \"body\", \"content\", \"review\"]),\n      helpful: col([\"helpful_count\", \"thumbsupcount\", \"helpful\", \"thumbsup\"]) };\n    if (ix.date === undefined || ix.rating === undefined || ix.text === undefined)\n      throw new Error(\"The CSV needs date, rating and text columns (found: \" + head.join(\", \") + \").\");\n    return rows.filter((r) => r.length > 1 && (r[ix.text] || \"\").trim()).map((r, n) => ({\n      review_id: ix.id !== undefined ? r[ix.id] : \"row-\" + (n + 1),\n      date: (r[ix.date] || \"\").slice(0, 10), rating: parseInt(r[ix.rating], 10) || 0,\n      helpful_count: ix.helpful !== undefined ? parseInt(r[ix.helpful], 10) || 0 : 0,\n      text: r[ix.text].replace(/\\s+/g, \" \").trim(),\n    }));\n  }\n\n  // --- Step 1: review intelligence -------------------------------------------\n  function analyze(input) {\n    const rows = input.map((r) => Object.assign({}, r, { _t: r.text.toLowerCase() }));\n    for (const r of rows) {\n      const scores = {};\n      for (const [k, spec] of Object.entries(THEMES)) {\n        if (r.rating < (spec.minRating || 0)) continue;\n        const s = hits(r._t, spec.patterns); if (s) scores[k] = s;\n      }\n      r.themes = Object.keys(scores).sort((a, b) => scores[b] - scores[a]); // stable: ties keep THEMES order\n      r.primary = r.themes[0] || \"other\";\n    }\n    const n = rows.length;\n    const themes = [];\n    for (const [k, spec] of Object.entries(THEMES)) {\n      const m = rows.filter((r) => r.themes.includes(k)); if (!m.length) continue;\n      const low = m.filter((r) => r.rating <= 2).length;\n      themes.push({ key: k, label: spec.label, short: spec.short, reviews_mentioning: m.length,\n        share_pct: round1(100 * m.length / n), primary_count: rows.filter((r) => r.primary === k).length,\n        avg_rating: Math.round(100 * m.reduce((s, r) => s + r.rating, 0) / m.length) / 100,\n        low_star_reviews: low, low_star_pct: round1(100 * low / m.length) });\n    }\n    themes.sort((a, b) => (b.low_star_reviews - a.low_star_reviews) || (b.reviews_mentioning - a.reviews_mentioning));\n    const top3 = themes.slice(0, 3);\n\n    const weekly = {};\n    for (const r of rows) {\n      const [y, w] = isoWeek(r.date); const tag = y + \"-W\" + String(w).padStart(2, \"0\");\n      weekly[tag] = weekly[tag] || { _total: 0 }; weekly[tag]._total++;\n      for (const t of r.themes) weekly[tag][t] = (weekly[tag][t] || 0) + 1;\n    }\n    const lead = top3[0].key;\n    const eligible = Object.keys(weekly).filter((k) => weekly[k]._total >= 30);\n    const pool = eligible.length ? eligible : Object.keys(weekly);\n    const peak = pool.reduce((best, k) => (!best || (weekly[k][lead] || 0) / weekly[k]._total > (weekly[best][lead] || 0) / weekly[best]._total) ? k : best, null);\n    const [py, pw] = [Number(peak.slice(0, 4)), Number(peak.slice(-2))];\n    const [ps, pe] = weekBounds(py, pw);\n    const peakInfo = { week: peak, start: ps, end: pe, share_pct: pyRound(100 * (weekly[peak][lead] || 0) / weekly[peak]._total) };\n\n    const reg = rows.filter((r) => REGRESSION.test(r._t));\n    const regression = { reviews: reg.length, low_star: reg.filter((r) => r.rating <= 2).length };\n\n    const quotes = top3.map((t) => {\n      const [must, anchor] = QUOTE_SPECS[t.key];\n      let cand = rows.filter((r) => r.primary === t.key);\n      const narrowed = cand.filter((r) => must.every((m) => m.test(r._t))); if (narrowed.length) cand = narrowed;\n      const score = (r) => { const th = hits(r._t, THEMES[t.key].patterns);\n        const tone = t.key !== \"ease_of_use\" ? 5 - r.rating : r.rating;\n        return [th >= 2 ? 1 : 0, r.text.length >= 80 && r.text.length <= 420 ? 1 : 0, tone, r.helpful_count, th]; };\n      const cmp = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };\n      let best = cand[0], bs = score(best);\n      for (const r of cand.slice(1)) { const s = score(r); if (cmp(s, bs) > 0) { best = r; bs = s; } }\n      return { theme: t.short, review_id: best.review_id, date: best.date, rating: best.rating, excerpt: excerpt(best.text, anchor) };\n    });\n\n    const fee = detectFee(rows);\n    const ratings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }; rows.forEach((r) => { ratings[r.rating] = (ratings[r.rating] || 0) + 1; });\n    const dates = rows.map((r) => r.date).sort();\n    const praise = themes.find((t) => t.key === \"ease_of_use\") || { reviews_mentioning: 0, share_pct: 0, avg_rating: 0 };\n    return {\n      window: { from: dates[0], to: dates[dates.length - 1], reviews: n }, rating_mix: ratings,\n      low_star_pct: pyRound(100 * (ratings[1] + ratings[2]) / n), themes, top_3_themes: top3.map((t) => t.label),\n      praise: { reviews: praise.reviews_mentioning, share_pct: praise.share_pct, avg_rating: praise.avg_rating },\n      quotes, lead_theme_peak: peakInfo, regression_signal: regression, fee_issue: fee, weekly_counts: weekly, rows,\n    };\n  }\n\n  function detectFee(rows) {\n    const charge = rows.filter((r) => r.themes.includes(\"charges\"));\n    const mentions = {}, confused = {}, evidence = {};\n    for (const r of charge) {\n      const isConf = hits(r._t, CONFUSION_CUES) > 0;\n      for (const [fee, pats] of Object.entries(FEE_TERMS)) {\n        if (hits(r._t, pats)) {\n          mentions[fee] = (mentions[fee] || 0) + 1;\n          if (isConf) { confused[fee] = (confused[fee] || 0) + 1; (evidence[fee] = evidence[fee] || []).push(r); }\n        }\n      }\n    }\n    const ranked = Object.keys(mentions).sort((a, b) => ((confused[b] || 0) - (confused[a] || 0)) || (mentions[b] - mentions[a]));\n    if (!ranked.length) return null;\n    const top = ranked[0];\n    const ev = evidence[top] || [];\n    const named = ev.filter((r) => /external charge/.test(r._t)); const pool = named.length ? named : ev;\n    let ex = pool[0];\n    for (const r of pool) if (excerpt(r.text, /external charge/).length < excerpt(ex.text, /external charge/).length) ex = r;\n    return {\n      fee_key: top, fee: FEE_LABELS[top], mentions: mentions[top], mentions_with_confusion_cue: confused[top] || 0,\n      charges_theme_reviews: charge.length,\n      all_fee_counts: ranked.map((f) => ({ key: f, label: FEE_LABELS[f], mentions: mentions[f], confused: confused[f] || 0 })),\n      example_quote: ex ? { review_id: ex.review_id, date: ex.date, rating: ex.rating, excerpt: excerpt(ex.text, /external charge/) } : null,\n      evidence_review_ids: ev.map((r) => r.review_id),\n    };\n  }\n\n  // --- Step 2: weekly pulse (markdown, same template as pipeline.py) ---------\n  function pulseMarkdown(ins, runDate) {\n    const top = ins.themes.slice(0, 3);\n    const L = [\"# Groww Weekly Product Pulse — \" + fmtDay(runDate, true), \"\",\n      \"**Input:** \" + ins.window.reviews + \" Play Store reviews (India, English), \" + fmtDay(ins.window.from) + \" – \" +\n      fmtDay(ins.window.to, true) + \" · \" + ins.low_star_pct + \"% rated 1–2★\", \"\", \"## Top themes (ranked by 1–2★ volume)\"];\n    top.forEach((t, i) => L.push((i + 1) + \". **\" + t.short + \"** — \" + t.reviews_mentioning + \" reviews (\" + pyRound(t.share_pct) +\n      \"%), avg \" + t.avg_rating.toFixed(1) + \"★. \" + THEME_NOTES[t.key]));\n    const p = ins.praise;\n    L.push(\"\", \"Bright spot: \" + p.reviews + \" reviews (\" + pyRound(p.share_pct) + \"%, \" + p.avg_rating.toFixed(1) + \"★) praise its simplicity for beginners.\", \"\", \"## Voice of the user\");\n    ins.quotes.forEach((q) => L.push(\"- \\\"\" + q.excerpt + \"\\\" (\" + q.rating + \"★, \" + fmtDay(q.date) + \")\"));\n    const pk = ins.lead_theme_peak, rg = ins.regression_signal, fee = ins.fee_issue;\n    L.push(\"\", \"## Key observation\", top[0].short + \" complaints peaked \" + parseISO(pk.start).getUTCDate() + \"–\" + fmtDay(pk.end) +\n      \" (\" + pk.share_pct + \"% of that week's reviews); \" + rg.reviews + \" reviews mention the Scalper button or hidden back-navigation (\" +\n      rg.low_star + \" rated 1–2★). \" + (fee ? \"\\\"External charges & taxes\\\" is the most confused charge: \" + fee.mentions_with_confusion_cue +\n      \" of \" + fee.mentions + \" mentions signal confusion, not price objection.\" : \"\"), \"\", \"## Action ideas\");\n    top.forEach((t, i) => { const a = ACTIONS[t.key] || [\"Follow-up:\", \"review this theme with the owning team.\"]; L.push((i + 1) + \". **\" + a[0] + \"** \" + a[1]); });\n    return L.join(\"\\n\") + \"\\n\";\n  }\n  const wordCount = (md) => (md.match(/\\S*[A-Za-z0-9]\\S*/g) || []).length;\n  function validatePulse(md, ins) {\n    const checks = [{ ok: wordCount(md) <= 250, label: wordCount(md) + \" / 250 words\" }];\n    const missing = ins.quotes.filter((q) => !md.includes(q.excerpt));\n    checks.push({ ok: !missing.length, label: missing.length ? missing.length + \" quote(s) altered\" : \"3 quotes verbatim from the CSV\" });\n    const acts = (md.split(\"## Action ideas\")[1] || \"\").match(/^\\d\\. \\*\\*/gm) || [];\n    checks.push({ ok: acts.length === 3, label: acts.length + \" action ideas\" });\n    return checks;\n  }\n\n  // --- Step 3: fee explainer -------------------------------------------------\n  function feeExplainer(ins) {\n    const fee = ins.fee_issue; if (!fee) return null;\n    const kb = FEE_KB[fee.fee_key]; if (!kb) return { missing: true, fee };\n    const checks = [{ ok: kb.bullets.length <= 6, label: kb.bullets.length + \" bullets (max 6)\" },\n      { ok: kb.sources.length >= 2, label: kb.sources.length + \" official source links\" },\n      { ok: !kb.bullets.some((b) => /\\b(we|you should|best|unfortunately|sorry)\\b/i.test(b.join(\" \"))), label: \"Neutral, facts-only wording\" },\n      { ok: !!kb.lastChecked, label: \"Last checked: \" + fmtDay(kb.lastChecked, true) }];\n    return { kb, fee, checks };\n  }\n\n  // --- Step 4: payload + email ----------------------------------------------\n  function payload(ins, pulseMd, runDate) {\n    const ex = feeExplainer(ins);\n    return { date: runDate, top_themes: ins.themes.slice(0, 3).map((t) => t.label), weekly_pulse: pulseMd,\n      identified_fee_issue: ins.fee_issue ? ins.fee_issue.fee : null,\n      explanation_bullets: ex && ex.kb ? ex.kb.bullets.map((b) => b.join(\" \")) : [],\n      source_links: ex && ex.kb ? ex.kb.sources.map((s) => s[1]) : [] };\n  }\n  function email(p) {\n    const plain = p.weekly_pulse.replace(/\\*\\*(.+?)\\*\\*/g, \"$1\").replace(/^#+\\s*/gm, \"\").trim();\n    const kb = FEE_KB.external_charges;\n    const body = [\"Team,\", \"\", \"Below is this week's product pulse from Play Store reviews, followed by a reusable support snippet for the most-confused charge.\", \"\",\n      \"=== WEEKLY PRODUCT PULSE ===\", \"\", plain, \"\", \"=== SUPPORT SNIPPET: \\\"External charges & taxes\\\" (copy-paste ready) ===\", \"\",\n      \"Hi, thanks for flagging this. Here is how charges on stock trades work on Groww:\", \"\",\n      ...p.explanation_bullets.map((b) => \"• \" + b), \"\", \"Sources: \" + p.source_links.join(\" | \"), \"Last checked: \" + fmtDay(kb.lastChecked, true), \"\",\n      \"— Generated by the review-pulse workflow; approved before drafting. Not sent automatically.\"].join(\"\\n\");\n    return { subject: \"Weekly Product Pulse + Customer Clarification — \" + fmtDay(p.date, true), to: [], body };\n  }\n\n  const api = { THEMES, FEE_KB, parseCSV, analyze, pulseMarkdown, validatePulse, wordCount, feeExplainer, payload, email, fmtDay, excerpt };\n  return api;\n})();\n\n// ---- Normalize reviews --------------------------------------------------\n// Accepts an uploaded CSV (form) or review items from the Google Play fetch and returns\n// ONE item holding a clean list: {review_id, date, rating, helpful_count, text}.\nconst items = $input.all();\nconst reviews = [];\nlet source = \"\";\nfor (let i = 0; i < items.length; i++) {\n  const it = items[i];\n  const files = Object.keys(it.binary || {});\n  if (files.length) {\n    for (const key of files) {\n      const buf = await this.helpers.getBinaryDataBuffer(i, key);\n      reviews.push(...E.parseCSV(buf.toString(\"utf8\").replace(/^﻿/, \"\")));\n      source = \"CSV upload: \" + (it.binary[key].fileName || key);\n    }\n    continue;\n  }\n  const j = it.json || {};\n  const text = j.body || j.text || j.content || j.review;\n  if (!text) continue;\n  reviews.push({\n    review_id: String(j.reviewId || j.review_id || j.id || \"item-\" + (i + 1)),\n    date: String(j.date || j.at || j.timestamp || \"\").slice(0, 10),\n    rating: Number(j.rating ?? j.score ?? j.stars) || 0,\n    helpful_count: Number(j.helpfulCounts ?? j.helpful_count ?? j.thumbsUpCount ?? j.thumbsUp ?? 0) || 0,\n    text: String(text).replace(/\\s+/g, \" \").trim(),\n  });\n  source = j.source || \"Google Play reviews\";\n}\nconst seen = new Set();\nconst clean = reviews.filter((r) => {\n  if (!r.text || !/^\\d{4}-\\d{2}-\\d{2}$/.test(r.date) || r.rating < 1 || r.rating > 5 || seen.has(r.review_id)) return false;\n  seen.add(r.review_id);\n  return true;\n});\nif (clean.length < 20) {\n  throw new Error(`Only ${clean.length} usable reviews found. Upload a CSV with date, rating and text columns through the form.`);\n}\nreturn [{ json: { source, reviews: clean } }];\n"
+      },
+      "id": "b8e8e03c-ea43-5061-b211-a3038f0b0de0",
+      "name": "Normalize reviews",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- shared review-pulse engine (same as prototype/engine.js) ----\nconst E = (function () {\n  \"use strict\";\n\n  const THEMES = {\n    reliability: {\n      label: \"App reliability: update regressions, charts & order glitches\", short: \"App reliability\",\n      patterns: [/\\bupdat(e|ed|es|ing)\\b/, /\\bbug/, /glitch/, /\\blag/, /\\bslow\\b/, /\\bhang/, /\\bstuck\\b/, /crash/,\n        /\\bfreez/, /not (opening|loading|working)/, /\\bchart/, /\\bcandle/, /scalp/, /back button/, /navigation/,\n        /\\brefresh/, /\\bindicator/, /stop ?loss/, /\\bsl\\b/, /square ?off/, /(not|wasn't) executed/, /\\bexecution\\b/,\n        /position/, /\\bbuffering\\b/, /not updat/],\n    },\n    support: {\n      label: \"Customer support hard to reach / issues unresolved\", short: \"Customer support\",\n      patterns: [/customer (care|support|service)/, /\\bsupport\\b/, /help ?line/, /\\bon hold\\b/, /\\bhold for\\b/,\n        /\\bticket/, /\\bagents?\\b/, /no (one )?(reply|response|respond)/, /not (responding|respond)/, /\\bcall back\\b/,\n        /chat (support|option|service)/, /\\bivr\\b/, /\\bmailed\\b/, /waiting .*connect/, /\\bai (bot|chatbot|help)\\b/],\n    },\n    charges: {\n      label: \"Charges & deductions not understood (brokerage, 'external charges & taxes', DP)\", short: \"Charges & deductions\",\n      patterns: [/\\bcharg(e|es|ed|ing)\\b/, /brokerage/, /brokarage/, /brockerage/, /\\bfees?\\b/, /\\bdp\\b/, /\\bdeduct/,\n        /\\btax(es)?\\b/, /\\bgst\\b/, /\\bstt\\b/, /hidden/, /commission/, /haircut/, /\\binterest\\b/, /\\bpenalty\\b/],\n    },\n    account_money: {\n      label: \"Account, KYC & money movement (activation, withdrawals, payments)\", short: \"Account & money movement\",\n      patterns: [/\\bkyc\\b/, /account (opening|activation|reactivat|closure|is|blocked|details|creation)/,\n        /(activate|reactivat|deactivat)/, /withdraw/, /\\bredeem|redemption/, /\\bpayment/, /\\bupi\\b/, /mandate/,\n        /\\brefund/, /\\bpan\\b/, /aadh?ar/, /e-?mail (id|address)/, /\\bblocked\\b/, /demat account/, /journey reset/,\n        /allow permission/, /\\blog ?in\\b/],\n    },\n    ease_of_use: {\n      label: \"Praise: simple, beginner-friendly investing\", short: \"Ease of use (praise)\",\n      patterns: [/easy/, /simple/, /user[- ]?friendly/, /beginner/, /smooth/, /\\bclean\\b/, /intuitive/, /\\bbest\\b/,\n        /\\bgreat\\b/, /excellent/, /\\bnice\\b/, /\\bgood app\\b/, /convenient/],\n      minRating: 4,\n    },\n  };\n\n  const FEE_TERMS = {\n    external_charges: [/external charge/, /\\btax(es)?\\b/, /\\bgst\\b/, /\\bstt\\b/, /hidden charge/, /other charges/, /deduction/, /\\bdeduct/],\n    brokerage: [/brokerage/, /brokarage/, /brockerage/, /per order/],\n    dp_charge: [/\\bdp\\b/, /selling stocks/, /sell order/, /delivery sell/],\n    mtf_interest: [/\\bmtf\\b/, /haircut/],\n    service_fees: [/\\bddpi\\b/, /change ur email/],\n  };\n  const FEE_LABELS = {\n    external_charges: \"\\\"External charges & taxes\\\" deducted on top of brokerage\",\n    brokerage: \"Brokerage per executed order\",\n    dp_charge: \"DP charge on delivery sells\",\n    mtf_interest: \"MTF interest / haircut\",\n    service_fees: \"Account-service fees (DDPI, email change)\",\n  };\n  const CONFUSION_CUES = [/not (clear|easy to understand)/, /don'?t know/, /donot know/, /hidden/,\n    /without (any|ur|your) (information|use|knowledge)/, /\\bwhy\\b/, /\\?/, /more th[ae]n (they|you) mention/,\n    /you mentioned/, /not (clearly )?(informed|disclosed)/, /bla bla/, /silently/, /unexpected/, /misleading/, /expected/];\n  const REGRESSION = /scalp|navigation|back button/;\n\n  const THEME_NOTES = {\n    reliability: \"Chart-screen regressions after updates, stale prices, stuck orders.\",\n    support: \"Long IVR holds, AI-bot loops, tickets closed unresolved.\",\n    charges: \"Deductions exceed the \\\"₹20 brokerage\\\" users expect.\",\n    account_money: \"Activation/KYC delays, slow withdrawals, failed payments.\",\n    ease_of_use: \"Simple, beginner-friendly investing.\",\n  };\n  const ACTIONS = {\n    reliability: [\"Chart hotfix:\", \"move the Scalper toggle away from Back, keep the nav bar visible, add an opt-out.\"],\n    support: [\"Support SLA:\", \"show real queue times, offer callback, no ticket closure without a human reply.\"],\n    charges: [\"Charge clarity:\", \"itemized pre-trade charge preview; link the fee explainer from P&L.\"],\n    account_money: [\"Money movement:\", \"show withdrawal/activation status with an ETA and a single tracking ID.\"],\n  };\n  const QUOTE_SPECS = {\n    reliability: [[/scalp/], /scalp/], support: [[/hold/], /hold/], charges: [[/deduct/, /not clear/], /not clear/],\n    account_money: [[/withdraw/], /withdraw/], ease_of_use: [[/beginner/], /beginner/],\n  };\n\n  // Facts verified against official pages on 13 Oct 2026 (see sources).\n  const FEE_KB = {\n    external_charges: {\n      title: \"\\\"External charges & taxes\\\" on Groww stock trades\",\n      bullets: [\n        [\"Two kinds of deductions apply to every trade.\", \"Groww's own brokerage, and levies set by the government, exchanges, SEBI and the depository. Groww lists the second group on its pricing page as Regulatory & Statutory Charges; in the app they appear separately from brokerage.\"],\n        [\"Brokerage (stocks):\", \"₹20 or 0.1% of order value per executed order, whichever is lower; if that is under ₹5, the charge is the lower of ₹5 or 2.5% of trade value. F&O: ₹20 per executed order.\"],\n        [\"Statutory and exchange levies (equity):\", \"STT is 0.1% on buy and sell for delivery and 0.025% on sell for intraday; stamp duty is 0.015% (delivery) or 0.003% (intraday) on buy; NSE transaction charge 0.00297%; SEBI turnover fee 0.0001%; GST 18% on brokerage, DP, exchange, SEBI and IPFT charges.\"],\n        [\"DP charge on delivery sells:\", \"₹20 per sell transaction (₹3.50 depository + ₹16.50 Groww; depository part ₹3.25 for women), plus GST. Not charged on intraday. Groww's portion is ₹0 for debit values under ₹100.\"],\n        [\"Why small trades feel it most:\", \"the ₹5 minimum brokerage and ₹20 DP charge do not scale with trade size. Example: 1 share bought at ₹200 and sold at ₹220 (delivery, NSE) carries about ₹36 in total charges, more than the ₹20 price gain.\"],\n        [\"Where to see exact amounts:\", \"the app shows an estimate on the trading day; final, itemized charges are in the contract note emailed as a PDF (password: PAN in capitals), with DP charges in a separate statement in the same PDF.\"],\n      ],\n      sources: [[\"Groww — Pricing\", \"https://groww.in/pricing\"],\n        [\"Groww Help — How much is the brokerage?\", \"https://groww.in/help/stocks/searchable/how-much-is-the-brokerage\"]],\n      lastChecked: \"2026-10-13\",\n    },\n  };\n\n  const MONTHS = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  function parseISO(s) { const [y, m, d] = s.split(\"-\").map(Number); return new Date(Date.UTC(y, m - 1, d)); }\n  function fmtDay(iso, year) { const d = parseISO(iso); return d.getUTCDate() + \" \" + MONTHS[d.getUTCMonth()] + (year ? \" \" + d.getUTCFullYear() : \"\"); }\n  function isoWeek(iso) {\n    const d = parseISO(iso); const day = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - day);\n    const y = d.getUTCFullYear(); const w = Math.ceil(((d - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7);\n    return [y, w];\n  }\n  function weekBounds(y, w) {\n    const jan4 = new Date(Date.UTC(y, 0, 4)); const day = jan4.getUTCDay() || 7;\n    const mon = new Date(jan4); mon.setUTCDate(jan4.getUTCDate() - day + 1 + (w - 1) * 7);\n    const sun = new Date(mon); sun.setUTCDate(mon.getUTCDate() + 6);\n    const f = (x) => x.toISOString().slice(0, 10); return [f(mon), f(sun)];\n  }\n  const round1 = (x) => Math.round(x * 10) / 10;\n  const pyRound = (x) => { const f = Math.floor(x); const r = x - f; return r > 0.5 || (r === 0.5 && f % 2 === 1) ? f + 1 : f; };\n  const hits = (t, pats) => pats.reduce((n, p) => n + (p.test(t) ? 1 : 0), 0);\n\n  function excerpt(text, anchor, maxWords) {\n    maxWords = maxWords || 22;\n    for (const s of text.split(/(?<=[.!?])\\s+/)) {\n      if (anchor.test(s.toLowerCase())) {\n        const w = s.split(/\\s+/).filter(Boolean);\n        return w.length > maxWords ? w.slice(0, maxWords).join(\" \") + \" …\" : s;\n      }\n    }\n    return text.split(/\\s+/).slice(0, maxWords).join(\" \") + \" …\";\n  }\n\n  // --- CSV ------------------------------------------------------------------\n  function parseCSV(src) {\n    const rows = []; let row = [], f = \"\", q = false;\n    for (let i = 0; i < src.length; i++) {\n      const c = src[i];\n      if (q) { if (c === '\"') { if (src[i + 1] === '\"') { f += '\"'; i++; } else q = false; } else f += c; }\n      else if (c === '\"') q = true;\n      else if (c === \",\") { row.push(f); f = \"\"; }\n      else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && src[i + 1] === \"\\n\") i++; row.push(f); rows.push(row); row = []; f = \"\"; }\n      else f += c;\n    }\n    if (f.length || row.length) { row.push(f); rows.push(row); }\n    const head = rows.shift().map((h) => h.trim().toLowerCase());\n    const col = (names) => names.map((n) => head.indexOf(n)).find((i) => i >= 0);\n    const ix = { id: col([\"review_id\", \"reviewid\", \"id\"]), date: col([\"date\", \"at\", \"review_date\"]),\n      rating: col([\"rating\", \"score\", \"stars\"]), text: col([\"text\", \"body\", \"content\", \"review\"]),\n      helpful: col([\"helpful_count\", \"thumbsupcount\", \"helpful\", \"thumbsup\"]) };\n    if (ix.date === undefined || ix.rating === undefined || ix.text === undefined)\n      throw new Error(\"The CSV needs date, rating and text columns (found: \" + head.join(\", \") + \").\");\n    return rows.filter((r) => r.length > 1 && (r[ix.text] || \"\").trim()).map((r, n) => ({\n      review_id: ix.id !== undefined ? r[ix.id] : \"row-\" + (n + 1),\n      date: (r[ix.date] || \"\").slice(0, 10), rating: parseInt(r[ix.rating], 10) || 0,\n      helpful_count: ix.helpful !== undefined ? parseInt(r[ix.helpful], 10) || 0 : 0,\n      text: r[ix.text].replace(/\\s+/g, \" \").trim(),\n    }));\n  }\n\n  // --- Step 1: review intelligence -------------------------------------------\n  function analyze(input) {\n    const rows = input.map((r) => Object.assign({}, r, { _t: r.text.toLowerCase() }));\n    for (const r of rows) {\n      const scores = {};\n      for (const [k, spec] of Object.entries(THEMES)) {\n        if (r.rating < (spec.minRating || 0)) continue;\n        const s = hits(r._t, spec.patterns); if (s) scores[k] = s;\n      }\n      r.themes = Object.keys(scores).sort((a, b) => scores[b] - scores[a]); // stable: ties keep THEMES order\n      r.primary = r.themes[0] || \"other\";\n    }\n    const n = rows.length;\n    const themes = [];\n    for (const [k, spec] of Object.entries(THEMES)) {\n      const m = rows.filter((r) => r.themes.includes(k)); if (!m.length) continue;\n      const low = m.filter((r) => r.rating <= 2).length;\n      themes.push({ key: k, label: spec.label, short: spec.short, reviews_mentioning: m.length,\n        share_pct: round1(100 * m.length / n), primary_count: rows.filter((r) => r.primary === k).length,\n        avg_rating: Math.round(100 * m.reduce((s, r) => s + r.rating, 0) / m.length) / 100,\n        low_star_reviews: low, low_star_pct: round1(100 * low / m.length) });\n    }\n    themes.sort((a, b) => (b.low_star_reviews - a.low_star_reviews) || (b.reviews_mentioning - a.reviews_mentioning));\n    const top3 = themes.slice(0, 3);\n\n    const weekly = {};\n    for (const r of rows) {\n      const [y, w] = isoWeek(r.date); const tag = y + \"-W\" + String(w).padStart(2, \"0\");\n      weekly[tag] = weekly[tag] || { _total: 0 }; weekly[tag]._total++;\n      for (const t of r.themes) weekly[tag][t] = (weekly[tag][t] || 0) + 1;\n    }\n    const lead = top3[0].key;\n    const eligible = Object.keys(weekly).filter((k) => weekly[k]._total >= 30);\n    const pool = eligible.length ? eligible : Object.keys(weekly);\n    const peak = pool.reduce((best, k) => (!best || (weekly[k][lead] || 0) / weekly[k]._total > (weekly[best][lead] || 0) / weekly[best]._total) ? k : best, null);\n    const [py, pw] = [Number(peak.slice(0, 4)), Number(peak.slice(-2))];\n    const [ps, pe] = weekBounds(py, pw);\n    const peakInfo = { week: peak, start: ps, end: pe, share_pct: pyRound(100 * (weekly[peak][lead] || 0) / weekly[peak]._total) };\n\n    const reg = rows.filter((r) => REGRESSION.test(r._t));\n    const regression = { reviews: reg.length, low_star: reg.filter((r) => r.rating <= 2).length };\n\n    const quotes = top3.map((t) => {\n      const [must, anchor] = QUOTE_SPECS[t.key];\n      let cand = rows.filter((r) => r.primary === t.key);\n      const narrowed = cand.filter((r) => must.every((m) => m.test(r._t))); if (narrowed.length) cand = narrowed;\n      const score = (r) => { const th = hits(r._t, THEMES[t.key].patterns);\n        const tone = t.key !== \"ease_of_use\" ? 5 - r.rating : r.rating;\n        return [th >= 2 ? 1 : 0, r.text.length >= 80 && r.text.length <= 420 ? 1 : 0, tone, r.helpful_count, th]; };\n      const cmp = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };\n      let best = cand[0], bs = score(best);\n      for (const r of cand.slice(1)) { const s = score(r); if (cmp(s, bs) > 0) { best = r; bs = s; } }\n      return { theme: t.short, review_id: best.review_id, date: best.date, rating: best.rating, excerpt: excerpt(best.text, anchor) };\n    });\n\n    const fee = detectFee(rows);\n    const ratings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }; rows.forEach((r) => { ratings[r.rating] = (ratings[r.rating] || 0) + 1; });\n    const dates = rows.map((r) => r.date).sort();\n    const praise = themes.find((t) => t.key === \"ease_of_use\") || { reviews_mentioning: 0, share_pct: 0, avg_rating: 0 };\n    return {\n      window: { from: dates[0], to: dates[dates.length - 1], reviews: n }, rating_mix: ratings,\n      low_star_pct: pyRound(100 * (ratings[1] + ratings[2]) / n), themes, top_3_themes: top3.map((t) => t.label),\n      praise: { reviews: praise.reviews_mentioning, share_pct: praise.share_pct, avg_rating: praise.avg_rating },\n      quotes, lead_theme_peak: peakInfo, regression_signal: regression, fee_issue: fee, weekly_counts: weekly, rows,\n    };\n  }\n\n  function detectFee(rows) {\n    const charge = rows.filter((r) => r.themes.includes(\"charges\"));\n    const mentions = {}, confused = {}, evidence = {};\n    for (const r of charge) {\n      const isConf = hits(r._t, CONFUSION_CUES) > 0;\n      for (const [fee, pats] of Object.entries(FEE_TERMS)) {\n        if (hits(r._t, pats)) {\n          mentions[fee] = (mentions[fee] || 0) + 1;\n          if (isConf) { confused[fee] = (confused[fee] || 0) + 1; (evidence[fee] = evidence[fee] || []).push(r); }\n        }\n      }\n    }\n    const ranked = Object.keys(mentions).sort((a, b) => ((confused[b] || 0) - (confused[a] || 0)) || (mentions[b] - mentions[a]));\n    if (!ranked.length) return null;\n    const top = ranked[0];\n    const ev = evidence[top] || [];\n    const named = ev.filter((r) => /external charge/.test(r._t)); const pool = named.length ? named : ev;\n    let ex = pool[0];\n    for (const r of pool) if (excerpt(r.text, /external charge/).length < excerpt(ex.text, /external charge/).length) ex = r;\n    return {\n      fee_key: top, fee: FEE_LABELS[top], mentions: mentions[top], mentions_with_confusion_cue: confused[top] || 0,\n      charges_theme_reviews: charge.length,\n      all_fee_counts: ranked.map((f) => ({ key: f, label: FEE_LABELS[f], mentions: mentions[f], confused: confused[f] || 0 })),\n      example_quote: ex ? { review_id: ex.review_id, date: ex.date, rating: ex.rating, excerpt: excerpt(ex.text, /external charge/) } : null,\n      evidence_review_ids: ev.map((r) => r.review_id),\n    };\n  }\n\n  // --- Step 2: weekly pulse (markdown, same template as pipeline.py) ---------\n  function pulseMarkdown(ins, runDate) {\n    const top = ins.themes.slice(0, 3);\n    const L = [\"# Groww Weekly Product Pulse — \" + fmtDay(runDate, true), \"\",\n      \"**Input:** \" + ins.window.reviews + \" Play Store reviews (India, English), \" + fmtDay(ins.window.from) + \" – \" +\n      fmtDay(ins.window.to, true) + \" · \" + ins.low_star_pct + \"% rated 1–2★\", \"\", \"## Top themes (ranked by 1–2★ volume)\"];\n    top.forEach((t, i) => L.push((i + 1) + \". **\" + t.short + \"** — \" + t.reviews_mentioning + \" reviews (\" + pyRound(t.share_pct) +\n      \"%), avg \" + t.avg_rating.toFixed(1) + \"★. \" + THEME_NOTES[t.key]));\n    const p = ins.praise;\n    L.push(\"\", \"Bright spot: \" + p.reviews + \" reviews (\" + pyRound(p.share_pct) + \"%, \" + p.avg_rating.toFixed(1) + \"★) praise its simplicity for beginners.\", \"\", \"## Voice of the user\");\n    ins.quotes.forEach((q) => L.push(\"- \\\"\" + q.excerpt + \"\\\" (\" + q.rating + \"★, \" + fmtDay(q.date) + \")\"));\n    const pk = ins.lead_theme_peak, rg = ins.regression_signal, fee = ins.fee_issue;\n    L.push(\"\", \"## Key observation\", top[0].short + \" complaints peaked \" + parseISO(pk.start).getUTCDate() + \"–\" + fmtDay(pk.end) +\n      \" (\" + pk.share_pct + \"% of that week's reviews); \" + rg.reviews + \" reviews mention the Scalper button or hidden back-navigation (\" +\n      rg.low_star + \" rated 1–2★). \" + (fee ? \"\\\"External charges & taxes\\\" is the most confused charge: \" + fee.mentions_with_confusion_cue +\n      \" of \" + fee.mentions + \" mentions signal confusion, not price objection.\" : \"\"), \"\", \"## Action ideas\");\n    top.forEach((t, i) => { const a = ACTIONS[t.key] || [\"Follow-up:\", \"review this theme with the owning team.\"]; L.push((i + 1) + \". **\" + a[0] + \"** \" + a[1]); });\n    return L.join(\"\\n\") + \"\\n\";\n  }\n  const wordCount = (md) => (md.match(/\\S*[A-Za-z0-9]\\S*/g) || []).length;\n  function validatePulse(md, ins) {\n    const checks = [{ ok: wordCount(md) <= 250, label: wordCount(md) + \" / 250 words\" }];\n    const missing = ins.quotes.filter((q) => !md.includes(q.excerpt));\n    checks.push({ ok: !missing.length, label: missing.length ? missing.length + \" quote(s) altered\" : \"3 quotes verbatim from the CSV\" });\n    const acts = (md.split(\"## Action ideas\")[1] || \"\").match(/^\\d\\. \\*\\*/gm) || [];\n    checks.push({ ok: acts.length === 3, label: acts.length + \" action ideas\" });\n    return checks;\n  }\n\n  // --- Step 3: fee explainer -------------------------------------------------\n  function feeExplainer(ins) {\n    const fee = ins.fee_issue; if (!fee) return null;\n    const kb = FEE_KB[fee.fee_key]; if (!kb) return { missing: true, fee };\n    const checks = [{ ok: kb.bullets.length <= 6, label: kb.bullets.length + \" bullets (max 6)\" },\n      { ok: kb.sources.length >= 2, label: kb.sources.length + \" official source links\" },\n      { ok: !kb.bullets.some((b) => /\\b(we|you should|best|unfortunately|sorry)\\b/i.test(b.join(\" \"))), label: \"Neutral, facts-only wording\" },\n      { ok: !!kb.lastChecked, label: \"Last checked: \" + fmtDay(kb.lastChecked, true) }];\n    return { kb, fee, checks };\n  }\n\n  // --- Step 4: payload + email ----------------------------------------------\n  function payload(ins, pulseMd, runDate) {\n    const ex = feeExplainer(ins);\n    return { date: runDate, top_themes: ins.themes.slice(0, 3).map((t) => t.label), weekly_pulse: pulseMd,\n      identified_fee_issue: ins.fee_issue ? ins.fee_issue.fee : null,\n      explanation_bullets: ex && ex.kb ? ex.kb.bullets.map((b) => b.join(\" \")) : [],\n      source_links: ex && ex.kb ? ex.kb.sources.map((s) => s[1]) : [] };\n  }\n  function email(p) {\n    const plain = p.weekly_pulse.replace(/\\*\\*(.+?)\\*\\*/g, \"$1\").replace(/^#+\\s*/gm, \"\").trim();\n    const kb = FEE_KB.external_charges;\n    const body = [\"Team,\", \"\", \"Below is this week's product pulse from Play Store reviews, followed by a reusable support snippet for the most-confused charge.\", \"\",\n      \"=== WEEKLY PRODUCT PULSE ===\", \"\", plain, \"\", \"=== SUPPORT SNIPPET: \\\"External charges & taxes\\\" (copy-paste ready) ===\", \"\",\n      \"Hi, thanks for flagging this. Here is how charges on stock trades work on Groww:\", \"\",\n      ...p.explanation_bullets.map((b) => \"• \" + b), \"\", \"Sources: \" + p.source_links.join(\" | \"), \"Last checked: \" + fmtDay(kb.lastChecked, true), \"\",\n      \"— Generated by the review-pulse workflow; approved before drafting. Not sent automatically.\"].join(\"\\n\");\n    return { subject: \"Weekly Product Pulse + Customer Clarification — \" + fmtDay(p.date, true), to: [], body };\n  }\n\n  const api = { THEMES, FEE_KB, parseCSV, analyze, pulseMarkdown, validatePulse, wordCount, feeExplainer, payload, email, fmtDay, excerpt };\n  return api;\n})();\n\n// ---- Step 1: review intelligence ------------------------------------------\n// Max 5 themes, top 3 by 1–2★ volume, 3 verbatim quotes, the most-confused fee.\nconst cfg = $(\"Config\").first().json;\nconst { source, reviews } = $input.first().json;\nconst full = E.analyze(reviews);\nconst { rows, ...insights } = full;            // drop per-review rows from the item\nconst templatePulse = E.pulseMarkdown(full, cfg.runDate);\n\nconst llmPrompt =\n  \"Rewrite the DRAFT below for clarity. Hard rules: output Markdown only, nothing before or after it; keep the exact section headings \" +\n  \"(# title, ## Top themes (ranked by 1–2★ volume), ## Voice of the user, ## Key observation, ## Action ideas); keep every number unchanged; \" +\n  \"keep each quoted user sentence exactly as written inside double quotes; exactly 3 numbered action ideas, each starting with a **bold label:**; \" +\n  \"at most 230 words; neutral tone; add no new facts.\\n\\n\" +\n  \"DATA (JSON): \" + JSON.stringify({ themes: insights.themes, quotes: insights.quotes, fee_issue: insights.fee_issue && {\n    fee: insights.fee_issue.fee, mentions: insights.fee_issue.mentions, confused: insights.fee_issue.mentions_with_confusion_cue },\n    peak: insights.lead_theme_peak, regression: insights.regression_signal }) +\n  \"\\n\\nDRAFT:\\n\" + templatePulse;\n\nreturn [{ json: { runDate: cfg.runDate, source, insights, templatePulse, llmPrompt } }];\n"
+      },
+      "id": "c95b6e73-33e0-5b80-be6a-3178adc91335",
+      "name": "Review intelligence",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.llmBaseUrl.replace(/\\/$/, '') }}/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $('Config').first().json.llmModel, temperature: 0.2, max_tokens: 4096, stream: false, messages: [{ role: 'system', content: \"You edit internal product updates for Groww's product team. Follow the user's hard rules exactly; never invent numbers or quotes; reply with the Markdown pulse only.\" }, { role: 'user', content: $json.llmPrompt }] }) }}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "c9f1dd1c-3643-5bf5-bcb0-65318b8afdb3",
+      "name": "Free LLM: polish pulse",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        100
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Free LLM key (Authorization: Bearer …)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- Step 2 guardrail: keep the LLM's draft only if it passes every check ----\n// Same rules as pipeline.py: ≤250 words, the 3 quotes verbatim, exactly 3 action\n// ideas, and every number from the data-driven template still present.\nconst base = $(\"Review intelligence\").first().json;\nconst out = $input.first().json;\n\nlet draft = \"\";\nif (Array.isArray(out.choices) && out.choices[0]) {                    // OpenAI-compatible (Gemini, Ollama, Groq, OpenRouter…)\n  const c = out.choices[0].message && out.choices[0].message.content;\n  draft = Array.isArray(c) ? c.map((p) => p.text || \"\").join(\"\") : String(c || \"\");\n} else if (Array.isArray(out.content)) {                               // Anthropic shape\n  draft = out.content.filter((b) => b.type === \"text\").map((b) => b.text).join(\"\\n\");\n}\ndraft = draft.replace(/<think>[\\s\\S]*?<\\/think>/gi, \"\")                 // local reasoning models\n  .replace(/^\\s*```(?:markdown|md)?\\s*/i, \"\").replace(/```\\s*$/, \"\").trim();\nif (draft) draft += \"\\n\";\n\nconst words = (md) => (md.match(/\\S*[A-Za-z0-9]\\S*/g) || []).length;\nconst numbers = (md) => new Set(md.match(/\\d+(?:\\.\\d+)?%?/g) || []);\nfunction checks(md) {\n  const list = [{ ok: words(md) <= 250, label: words(md) + \" / 250 words\" }];\n  const missingQuotes = base.insights.quotes.filter((q) => !md.includes(q.excerpt));\n  list.push({ ok: !missingQuotes.length, label: missingQuotes.length ? missingQuotes.length + \" quote(s) altered\" : \"3 quotes verbatim from the CSV\" });\n  const acts = (md.split(\"## Action ideas\")[1] || \"\").match(/^\\d\\. \\*\\*/gm) || [];\n  list.push({ ok: acts.length === 3, label: acts.length + \" action ideas\" });\n  const have = numbers(md);\n  const lost = [...numbers(base.templatePulse)].filter((n) => !have.has(n));\n  list.push({ ok: !lost.length, label: lost.length ? \"numbers changed: \" + lost.slice(0, 5).join(\", \") : \"all numbers kept\" });\n  return list;\n}\n\nconst model = $(\"Config\").first().json.llmModel;\nlet pulse = base.templatePulse, pulseSource = \"template\", note = \"\";\nif (draft) {\n  const c = checks(draft);\n  if (c.every((x) => x.ok)) { pulse = draft; pulseSource = \"LLM (\" + model + \")\"; }\n  else note = \"LLM draft rejected (\" + c.filter((x) => !x.ok).map((x) => x.label).join(\"; \") + \"); template used.\";\n} else if (out.error) {\n  const e = out.error, status = typeof e === \"object\" ? String(e.status || e.httpCode || \"\") : \"\";\n  const why = { \"429\": \"free-tier rate limit reached\", \"401\": \"API key missing or wrong\", \"403\": \"API key not allowed for this model\",\n                \"404\": \"model name or base URL not found\" }[status];\n  const msg = why || (typeof e === \"string\" ? e : e.message || JSON.stringify(e));\n  note = \"LLM step failed (\" + (status ? \"HTTP \" + status + \": \" : \"\") + msg.slice(0, 160) + \"); template used.\";\n} else {\n  note = \"LLM step skipped; template used.\";\n}\nconst pulseChecks = checks(pulse);\nif (!pulseChecks.every((x) => x.ok)) throw new Error(\"Pulse failed validation: \" + JSON.stringify(pulseChecks));\nreturn [{ json: { pulse, pulseSource, pulseChecks, note } }];\n"
+      },
+      "id": "bcfdec0d-027f-5831-8d6c-62754a12710b",
+      "name": "Validate pulse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- shared review-pulse engine (same as prototype/engine.js) ----\nconst E = (function () {\n  \"use strict\";\n\n  const THEMES = {\n    reliability: {\n      label: \"App reliability: update regressions, charts & order glitches\", short: \"App reliability\",\n      patterns: [/\\bupdat(e|ed|es|ing)\\b/, /\\bbug/, /glitch/, /\\blag/, /\\bslow\\b/, /\\bhang/, /\\bstuck\\b/, /crash/,\n        /\\bfreez/, /not (opening|loading|working)/, /\\bchart/, /\\bcandle/, /scalp/, /back button/, /navigation/,\n        /\\brefresh/, /\\bindicator/, /stop ?loss/, /\\bsl\\b/, /square ?off/, /(not|wasn't) executed/, /\\bexecution\\b/,\n        /position/, /\\bbuffering\\b/, /not updat/],\n    },\n    support: {\n      label: \"Customer support hard to reach / issues unresolved\", short: \"Customer support\",\n      patterns: [/customer (care|support|service)/, /\\bsupport\\b/, /help ?line/, /\\bon hold\\b/, /\\bhold for\\b/,\n        /\\bticket/, /\\bagents?\\b/, /no (one )?(reply|response|respond)/, /not (responding|respond)/, /\\bcall back\\b/,\n        /chat (support|option|service)/, /\\bivr\\b/, /\\bmailed\\b/, /waiting .*connect/, /\\bai (bot|chatbot|help)\\b/],\n    },\n    charges: {\n      label: \"Charges & deductions not understood (brokerage, 'external charges & taxes', DP)\", short: \"Charges & deductions\",\n      patterns: [/\\bcharg(e|es|ed|ing)\\b/, /brokerage/, /brokarage/, /brockerage/, /\\bfees?\\b/, /\\bdp\\b/, /\\bdeduct/,\n        /\\btax(es)?\\b/, /\\bgst\\b/, /\\bstt\\b/, /hidden/, /commission/, /haircut/, /\\binterest\\b/, /\\bpenalty\\b/],\n    },\n    account_money: {\n      label: \"Account, KYC & money movement (activation, withdrawals, payments)\", short: \"Account & money movement\",\n      patterns: [/\\bkyc\\b/, /account (opening|activation|reactivat|closure|is|blocked|details|creation)/,\n        /(activate|reactivat|deactivat)/, /withdraw/, /\\bredeem|redemption/, /\\bpayment/, /\\bupi\\b/, /mandate/,\n        /\\brefund/, /\\bpan\\b/, /aadh?ar/, /e-?mail (id|address)/, /\\bblocked\\b/, /demat account/, /journey reset/,\n        /allow permission/, /\\blog ?in\\b/],\n    },\n    ease_of_use: {\n      label: \"Praise: simple, beginner-friendly investing\", short: \"Ease of use (praise)\",\n      patterns: [/easy/, /simple/, /user[- ]?friendly/, /beginner/, /smooth/, /\\bclean\\b/, /intuitive/, /\\bbest\\b/,\n        /\\bgreat\\b/, /excellent/, /\\bnice\\b/, /\\bgood app\\b/, /convenient/],\n      minRating: 4,\n    },\n  };\n\n  const FEE_TERMS = {\n    external_charges: [/external charge/, /\\btax(es)?\\b/, /\\bgst\\b/, /\\bstt\\b/, /hidden charge/, /other charges/, /deduction/, /\\bdeduct/],\n    brokerage: [/brokerage/, /brokarage/, /brockerage/, /per order/],\n    dp_charge: [/\\bdp\\b/, /selling stocks/, /sell order/, /delivery sell/],\n    mtf_interest: [/\\bmtf\\b/, /haircut/],\n    service_fees: [/\\bddpi\\b/, /change ur email/],\n  };\n  const FEE_LABELS = {\n    external_charges: \"\\\"External charges & taxes\\\" deducted on top of brokerage\",\n    brokerage: \"Brokerage per executed order\",\n    dp_charge: \"DP charge on delivery sells\",\n    mtf_interest: \"MTF interest / haircut\",\n    service_fees: \"Account-service fees (DDPI, email change)\",\n  };\n  const CONFUSION_CUES = [/not (clear|easy to understand)/, /don'?t know/, /donot know/, /hidden/,\n    /without (any|ur|your) (information|use|knowledge)/, /\\bwhy\\b/, /\\?/, /more th[ae]n (they|you) mention/,\n    /you mentioned/, /not (clearly )?(informed|disclosed)/, /bla bla/, /silently/, /unexpected/, /misleading/, /expected/];\n  const REGRESSION = /scalp|navigation|back button/;\n\n  const THEME_NOTES = {\n    reliability: \"Chart-screen regressions after updates, stale prices, stuck orders.\",\n    support: \"Long IVR holds, AI-bot loops, tickets closed unresolved.\",\n    charges: \"Deductions exceed the \\\"₹20 brokerage\\\" users expect.\",\n    account_money: \"Activation/KYC delays, slow withdrawals, failed payments.\",\n    ease_of_use: \"Simple, beginner-friendly investing.\",\n  };\n  const ACTIONS = {\n    reliability: [\"Chart hotfix:\", \"move the Scalper toggle away from Back, keep the nav bar visible, add an opt-out.\"],\n    support: [\"Support SLA:\", \"show real queue times, offer callback, no ticket closure without a human reply.\"],\n    charges: [\"Charge clarity:\", \"itemized pre-trade charge preview; link the fee explainer from P&L.\"],\n    account_money: [\"Money movement:\", \"show withdrawal/activation status with an ETA and a single tracking ID.\"],\n  };\n  const QUOTE_SPECS = {\n    reliability: [[/scalp/], /scalp/], support: [[/hold/], /hold/], charges: [[/deduct/, /not clear/], /not clear/],\n    account_money: [[/withdraw/], /withdraw/], ease_of_use: [[/beginner/], /beginner/],\n  };\n\n  // Facts verified against official pages on 13 Oct 2026 (see sources).\n  const FEE_KB = {\n    external_charges: {\n      title: \"\\\"External charges & taxes\\\" on Groww stock trades\",\n      bullets: [\n        [\"Two kinds of deductions apply to every trade.\", \"Groww's own brokerage, and levies set by the government, exchanges, SEBI and the depository. Groww lists the second group on its pricing page as Regulatory & Statutory Charges; in the app they appear separately from brokerage.\"],\n        [\"Brokerage (stocks):\", \"₹20 or 0.1% of order value per executed order, whichever is lower; if that is under ₹5, the charge is the lower of ₹5 or 2.5% of trade value. F&O: ₹20 per executed order.\"],\n        [\"Statutory and exchange levies (equity):\", \"STT is 0.1% on buy and sell for delivery and 0.025% on sell for intraday; stamp duty is 0.015% (delivery) or 0.003% (intraday) on buy; NSE transaction charge 0.00297%; SEBI turnover fee 0.0001%; GST 18% on brokerage, DP, exchange, SEBI and IPFT charges.\"],\n        [\"DP charge on delivery sells:\", \"₹20 per sell transaction (₹3.50 depository + ₹16.50 Groww; depository part ₹3.25 for women), plus GST. Not charged on intraday. Groww's portion is ₹0 for debit values under ₹100.\"],\n        [\"Why small trades feel it most:\", \"the ₹5 minimum brokerage and ₹20 DP charge do not scale with trade size. Example: 1 share bought at ₹200 and sold at ₹220 (delivery, NSE) carries about ₹36 in total charges, more than the ₹20 price gain.\"],\n        [\"Where to see exact amounts:\", \"the app shows an estimate on the trading day; final, itemized charges are in the contract note emailed as a PDF (password: PAN in capitals), with DP charges in a separate statement in the same PDF.\"],\n      ],\n      sources: [[\"Groww — Pricing\", \"https://groww.in/pricing\"],\n        [\"Groww Help — How much is the brokerage?\", \"https://groww.in/help/stocks/searchable/how-much-is-the-brokerage\"]],\n      lastChecked: \"2026-10-13\",\n    },\n  };\n\n  const MONTHS = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  function parseISO(s) { const [y, m, d] = s.split(\"-\").map(Number); return new Date(Date.UTC(y, m - 1, d)); }\n  function fmtDay(iso, year) { const d = parseISO(iso); return d.getUTCDate() + \" \" + MONTHS[d.getUTCMonth()] + (year ? \" \" + d.getUTCFullYear() : \"\"); }\n  function isoWeek(iso) {\n    const d = parseISO(iso); const day = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - day);\n    const y = d.getUTCFullYear(); const w = Math.ceil(((d - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7);\n    return [y, w];\n  }\n  function weekBounds(y, w) {\n    const jan4 = new Date(Date.UTC(y, 0, 4)); const day = jan4.getUTCDay() || 7;\n    const mon = new Date(jan4); mon.setUTCDate(jan4.getUTCDate() - day + 1 + (w - 1) * 7);\n    const sun = new Date(mon); sun.setUTCDate(mon.getUTCDate() + 6);\n    const f = (x) => x.toISOString().slice(0, 10); return [f(mon), f(sun)];\n  }\n  const round1 = (x) => Math.round(x * 10) / 10;\n  const pyRound = (x) => { const f = Math.floor(x); const r = x - f; return r > 0.5 || (r === 0.5 && f % 2 === 1) ? f + 1 : f; };\n  const hits = (t, pats) => pats.reduce((n, p) => n + (p.test(t) ? 1 : 0), 0);\n\n  function excerpt(text, anchor, maxWords) {\n    maxWords = maxWords || 22;\n    for (const s of text.split(/(?<=[.!?])\\s+/)) {\n      if (anchor.test(s.toLowerCase())) {\n        const w = s.split(/\\s+/).filter(Boolean);\n        return w.length > maxWords ? w.slice(0, maxWords).join(\" \") + \" …\" : s;\n      }\n    }\n    return text.split(/\\s+/).slice(0, maxWords).join(\" \") + \" …\";\n  }\n\n  // --- CSV ------------------------------------------------------------------\n  function parseCSV(src) {\n    const rows = []; let row = [], f = \"\", q = false;\n    for (let i = 0; i < src.length; i++) {\n      const c = src[i];\n      if (q) { if (c === '\"') { if (src[i + 1] === '\"') { f += '\"'; i++; } else q = false; } else f += c; }\n      else if (c === '\"') q = true;\n      else if (c === \",\") { row.push(f); f = \"\"; }\n      else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && src[i + 1] === \"\\n\") i++; row.push(f); rows.push(row); row = []; f = \"\"; }\n      else f += c;\n    }\n    if (f.length || row.length) { row.push(f); rows.push(row); }\n    const head = rows.shift().map((h) => h.trim().toLowerCase());\n    const col = (names) => names.map((n) => head.indexOf(n)).find((i) => i >= 0);\n    const ix = { id: col([\"review_id\", \"reviewid\", \"id\"]), date: col([\"date\", \"at\", \"review_date\"]),\n      rating: col([\"rating\", \"score\", \"stars\"]), text: col([\"text\", \"body\", \"content\", \"review\"]),\n      helpful: col([\"helpful_count\", \"thumbsupcount\", \"helpful\", \"thumbsup\"]) };\n    if (ix.date === undefined || ix.rating === undefined || ix.text === undefined)\n      throw new Error(\"The CSV needs date, rating and text columns (found: \" + head.join(\", \") + \").\");\n    return rows.filter((r) => r.length > 1 && (r[ix.text] || \"\").trim()).map((r, n) => ({\n      review_id: ix.id !== undefined ? r[ix.id] : \"row-\" + (n + 1),\n      date: (r[ix.date] || \"\").slice(0, 10), rating: parseInt(r[ix.rating], 10) || 0,\n      helpful_count: ix.helpful !== undefined ? parseInt(r[ix.helpful], 10) || 0 : 0,\n      text: r[ix.text].replace(/\\s+/g, \" \").trim(),\n    }));\n  }\n\n  // --- Step 1: review intelligence -------------------------------------------\n  function analyze(input) {\n    const rows = input.map((r) => Object.assign({}, r, { _t: r.text.toLowerCase() }));\n    for (const r of rows) {\n      const scores = {};\n      for (const [k, spec] of Object.entries(THEMES)) {\n        if (r.rating < (spec.minRating || 0)) continue;\n        const s = hits(r._t, spec.patterns); if (s) scores[k] = s;\n      }\n      r.themes = Object.keys(scores).sort((a, b) => scores[b] - scores[a]); // stable: ties keep THEMES order\n      r.primary = r.themes[0] || \"other\";\n    }\n    const n = rows.length;\n    const themes = [];\n    for (const [k, spec] of Object.entries(THEMES)) {\n      const m = rows.filter((r) => r.themes.includes(k)); if (!m.length) continue;\n      const low = m.filter((r) => r.rating <= 2).length;\n      themes.push({ key: k, label: spec.label, short: spec.short, reviews_mentioning: m.length,\n        share_pct: round1(100 * m.length / n), primary_count: rows.filter((r) => r.primary === k).length,\n        avg_rating: Math.round(100 * m.reduce((s, r) => s + r.rating, 0) / m.length) / 100,\n        low_star_reviews: low, low_star_pct: round1(100 * low / m.length) });\n    }\n    themes.sort((a, b) => (b.low_star_reviews - a.low_star_reviews) || (b.reviews_mentioning - a.reviews_mentioning));\n    const top3 = themes.slice(0, 3);\n\n    const weekly = {};\n    for (const r of rows) {\n      const [y, w] = isoWeek(r.date); const tag = y + \"-W\" + String(w).padStart(2, \"0\");\n      weekly[tag] = weekly[tag] || { _total: 0 }; weekly[tag]._total++;\n      for (const t of r.themes) weekly[tag][t] = (weekly[tag][t] || 0) + 1;\n    }\n    const lead = top3[0].key;\n    const eligible = Object.keys(weekly).filter((k) => weekly[k]._total >= 30);\n    const pool = eligible.length ? eligible : Object.keys(weekly);\n    const peak = pool.reduce((best, k) => (!best || (weekly[k][lead] || 0) / weekly[k]._total > (weekly[best][lead] || 0) / weekly[best]._total) ? k : best, null);\n    const [py, pw] = [Number(peak.slice(0, 4)), Number(peak.slice(-2))];\n    const [ps, pe] = weekBounds(py, pw);\n    const peakInfo = { week: peak, start: ps, end: pe, share_pct: pyRound(100 * (weekly[peak][lead] || 0) / weekly[peak]._total) };\n\n    const reg = rows.filter((r) => REGRESSION.test(r._t));\n    const regression = { reviews: reg.length, low_star: reg.filter((r) => r.rating <= 2).length };\n\n    const quotes = top3.map((t) => {\n      const [must, anchor] = QUOTE_SPECS[t.key];\n      let cand = rows.filter((r) => r.primary === t.key);\n      const narrowed = cand.filter((r) => must.every((m) => m.test(r._t))); if (narrowed.length) cand = narrowed;\n      const score = (r) => { const th = hits(r._t, THEMES[t.key].patterns);\n        const tone = t.key !== \"ease_of_use\" ? 5 - r.rating : r.rating;\n        return [th >= 2 ? 1 : 0, r.text.length >= 80 && r.text.length <= 420 ? 1 : 0, tone, r.helpful_count, th]; };\n      const cmp = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };\n      let best = cand[0], bs = score(best);\n      for (const r of cand.slice(1)) { const s = score(r); if (cmp(s, bs) > 0) { best = r; bs = s; } }\n      return { theme: t.short, review_id: best.review_id, date: best.date, rating: best.rating, excerpt: excerpt(best.text, anchor) };\n    });\n\n    const fee = detectFee(rows);\n    const ratings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }; rows.forEach((r) => { ratings[r.rating] = (ratings[r.rating] || 0) + 1; });\n    const dates = rows.map((r) => r.date).sort();\n    const praise = themes.find((t) => t.key === \"ease_of_use\") || { reviews_mentioning: 0, share_pct: 0, avg_rating: 0 };\n    return {\n      window: { from: dates[0], to: dates[dates.length - 1], reviews: n }, rating_mix: ratings,\n      low_star_pct: pyRound(100 * (ratings[1] + ratings[2]) / n), themes, top_3_themes: top3.map((t) => t.label),\n      praise: { reviews: praise.reviews_mentioning, share_pct: praise.share_pct, avg_rating: praise.avg_rating },\n      quotes, lead_theme_peak: peakInfo, regression_signal: regression, fee_issue: fee, weekly_counts: weekly, rows,\n    };\n  }\n\n  function detectFee(rows) {\n    const charge = rows.filter((r) => r.themes.includes(\"charges\"));\n    const mentions = {}, confused = {}, evidence = {};\n    for (const r of charge) {\n      const isConf = hits(r._t, CONFUSION_CUES) > 0;\n      for (const [fee, pats] of Object.entries(FEE_TERMS)) {\n        if (hits(r._t, pats)) {\n          mentions[fee] = (mentions[fee] || 0) + 1;\n          if (isConf) { confused[fee] = (confused[fee] || 0) + 1; (evidence[fee] = evidence[fee] || []).push(r); }\n        }\n      }\n    }\n    const ranked = Object.keys(mentions).sort((a, b) => ((confused[b] || 0) - (confused[a] || 0)) || (mentions[b] - mentions[a]));\n    if (!ranked.length) return null;\n    const top = ranked[0];\n    const ev = evidence[top] || [];\n    const named = ev.filter((r) => /external charge/.test(r._t)); const pool = named.length ? named : ev;\n    let ex = pool[0];\n    for (const r of pool) if (excerpt(r.text, /external charge/).length < excerpt(ex.text, /external charge/).length) ex = r;\n    return {\n      fee_key: top, fee: FEE_LABELS[top], mentions: mentions[top], mentions_with_confusion_cue: confused[top] || 0,\n      charges_theme_reviews: charge.length,\n      all_fee_counts: ranked.map((f) => ({ key: f, label: FEE_LABELS[f], mentions: mentions[f], confused: confused[f] || 0 })),\n      example_quote: ex ? { review_id: ex.review_id, date: ex.date, rating: ex.rating, excerpt: excerpt(ex.text, /external charge/) } : null,\n      evidence_review_ids: ev.map((r) => r.review_id),\n    };\n  }\n\n  // --- Step 2: weekly pulse (markdown, same template as pipeline.py) ---------\n  function pulseMarkdown(ins, runDate) {\n    const top = ins.themes.slice(0, 3);\n    const L = [\"# Groww Weekly Product Pulse — \" + fmtDay(runDate, true), \"\",\n      \"**Input:** \" + ins.window.reviews + \" Play Store reviews (India, English), \" + fmtDay(ins.window.from) + \" – \" +\n      fmtDay(ins.window.to, true) + \" · \" + ins.low_star_pct + \"% rated 1–2★\", \"\", \"## Top themes (ranked by 1–2★ volume)\"];\n    top.forEach((t, i) => L.push((i + 1) + \". **\" + t.short + \"** — \" + t.reviews_mentioning + \" reviews (\" + pyRound(t.share_pct) +\n      \"%), avg \" + t.avg_rating.toFixed(1) + \"★. \" + THEME_NOTES[t.key]));\n    const p = ins.praise;\n    L.push(\"\", \"Bright spot: \" + p.reviews + \" reviews (\" + pyRound(p.share_pct) + \"%, \" + p.avg_rating.toFixed(1) + \"★) praise its simplicity for beginners.\", \"\", \"## Voice of the user\");\n    ins.quotes.forEach((q) => L.push(\"- \\\"\" + q.excerpt + \"\\\" (\" + q.rating + \"★, \" + fmtDay(q.date) + \")\"));\n    const pk = ins.lead_theme_peak, rg = ins.regression_signal, fee = ins.fee_issue;\n    L.push(\"\", \"## Key observation\", top[0].short + \" complaints peaked \" + parseISO(pk.start).getUTCDate() + \"–\" + fmtDay(pk.end) +\n      \" (\" + pk.share_pct + \"% of that week's reviews); \" + rg.reviews + \" reviews mention the Scalper button or hidden back-navigation (\" +\n      rg.low_star + \" rated 1–2★). \" + (fee ? \"\\\"External charges & taxes\\\" is the most confused charge: \" + fee.mentions_with_confusion_cue +\n      \" of \" + fee.mentions + \" mentions signal confusion, not price objection.\" : \"\"), \"\", \"## Action ideas\");\n    top.forEach((t, i) => { const a = ACTIONS[t.key] || [\"Follow-up:\", \"review this theme with the owning team.\"]; L.push((i + 1) + \". **\" + a[0] + \"** \" + a[1]); });\n    return L.join(\"\\n\") + \"\\n\";\n  }\n  const wordCount = (md) => (md.match(/\\S*[A-Za-z0-9]\\S*/g) || []).length;\n  function validatePulse(md, ins) {\n    const checks = [{ ok: wordCount(md) <= 250, label: wordCount(md) + \" / 250 words\" }];\n    const missing = ins.quotes.filter((q) => !md.includes(q.excerpt));\n    checks.push({ ok: !missing.length, label: missing.length ? missing.length + \" quote(s) altered\" : \"3 quotes verbatim from the CSV\" });\n    const acts = (md.split(\"## Action ideas\")[1] || \"\").match(/^\\d\\. \\*\\*/gm) || [];\n    checks.push({ ok: acts.length === 3, label: acts.length + \" action ideas\" });\n    return checks;\n  }\n\n  // --- Step 3: fee explainer -------------------------------------------------\n  function feeExplainer(ins) {\n    const fee = ins.fee_issue; if (!fee) return null;\n    const kb = FEE_KB[fee.fee_key]; if (!kb) return { missing: true, fee };\n    const checks = [{ ok: kb.bullets.length <= 6, label: kb.bullets.length + \" bullets (max 6)\" },\n      { ok: kb.sources.length >= 2, label: kb.sources.length + \" official source links\" },\n      { ok: !kb.bullets.some((b) => /\\b(we|you should|best|unfortunately|sorry)\\b/i.test(b.join(\" \"))), label: \"Neutral, facts-only wording\" },\n      { ok: !!kb.lastChecked, label: \"Last checked: \" + fmtDay(kb.lastChecked, true) }];\n    return { kb, fee, checks };\n  }\n\n  // --- Step 4: payload + email ----------------------------------------------\n  function payload(ins, pulseMd, runDate) {\n    const ex = feeExplainer(ins);\n    return { date: runDate, top_themes: ins.themes.slice(0, 3).map((t) => t.label), weekly_pulse: pulseMd,\n      identified_fee_issue: ins.fee_issue ? ins.fee_issue.fee : null,\n      explanation_bullets: ex && ex.kb ? ex.kb.bullets.map((b) => b.join(\" \")) : [],\n      source_links: ex && ex.kb ? ex.kb.sources.map((s) => s[1]) : [] };\n  }\n  function email(p) {\n    const plain = p.weekly_pulse.replace(/\\*\\*(.+?)\\*\\*/g, \"$1\").replace(/^#+\\s*/gm, \"\").trim();\n    const kb = FEE_KB.external_charges;\n    const body = [\"Team,\", \"\", \"Below is this week's product pulse from Play Store reviews, followed by a reusable support snippet for the most-confused charge.\", \"\",\n      \"=== WEEKLY PRODUCT PULSE ===\", \"\", plain, \"\", \"=== SUPPORT SNIPPET: \\\"External charges & taxes\\\" (copy-paste ready) ===\", \"\",\n      \"Hi, thanks for flagging this. Here is how charges on stock trades work on Groww:\", \"\",\n      ...p.explanation_bullets.map((b) => \"• \" + b), \"\", \"Sources: \" + p.source_links.join(\" | \"), \"Last checked: \" + fmtDay(kb.lastChecked, true), \"\",\n      \"— Generated by the review-pulse workflow; approved before drafting. Not sent automatically.\"].join(\"\\n\");\n    return { subject: \"Weekly Product Pulse + Customer Clarification — \" + fmtDay(p.date, true), to: [], body };\n  }\n\n  const api = { THEMES, FEE_KB, parseCSV, analyze, pulseMarkdown, validatePulse, wordCount, feeExplainer, payload, email, fmtDay, excerpt };\n  return api;\n})();\n\n// ---- Step 3 + 4: fee explainer, MCP payload, email draft, approval message ----\nconst cfg = $(\"Config\").first().json;\nconst base = $(\"Review intelligence\").first().json;\nconst v = $input.first().json;\nconst ins = base.insights;\n\nconst ex = E.feeExplainer(ins);\nif (!ex) throw new Error(\"No fee or charge confusion found in these reviews, so there is no explainer to send.\");\nif (ex.missing) throw new Error(`Detected fee issue \"${ex.fee.fee}\" has no verified explainer yet. Add it to FEE_KB (with 2 official sources) before support uses it.`);\nif (!ex.checks.every((c) => c.ok)) throw new Error(\"Explainer failed validation: \" + JSON.stringify(ex.checks));\n\nconst payload = E.payload(ins, v.pulse, base.runDate);   // {date, top_themes, weekly_pulse, identified_fee_issue, explanation_bullets, source_links}\nconst email = E.email(payload);                          // {subject, to: [], body}\nconst plainPulse = v.pulse.replace(/\\*\\*(.+?)\\*\\*/g, \"$1\").replace(/^#+\\s*/gm, \"\").trim();\nconst lastChecked = E.fmtDay(ex.kb.lastChecked, true);\n\nconst docText = [\n  \"\",\n  \"────────────────────────────────────────\",\n  \"Entry — \" + E.fmtDay(payload.date, true),\n  \"────────────────────────────────────────\",\n  \"date: \" + payload.date,\n  \"top_themes:\",\n  ...payload.top_themes.map((t, i) => \"  \" + (i + 1) + \". \" + t),\n  \"identified_fee_issue: \" + payload.identified_fee_issue,\n  \"\",\n  \"weekly_pulse:\",\n  plainPulse,\n  \"\",\n  \"explanation_bullets:\",\n  ...payload.explanation_bullets.map((b) => \"  • \" + b),\n  \"Last checked: \" + lastChecked,\n  \"\",\n  \"source_links:\",\n  ...payload.source_links.map((u) => \"  • \" + u),\n  \"\",\n  `Input: ${ins.window.reviews} reviews, ${E.fmtDay(ins.window.from)} – ${E.fmtDay(ins.window.to, true)} (${base.source}). Pulse text: ${v.pulseSource}. Approved in n8n by ${cfg.approverEmail}.`,\n  \"\",\n].join(\"\\n\");\n\nconst approvalSubject = \"Approve: \" + email.subject;\nconst approvalMessage = [\n  \"Two actions are queued and nothing has been written yet:\",\n  \"1. Append this week's entry to the Google Doc \" + (cfg.googleDocId.startsWith(\"http\") ? cfg.googleDocId : \"https://docs.google.com/document/d/\" + cfg.googleDocId),\n  \"2. Create a Gmail draft (no recipients, never sent): \\\"\" + email.subject + \"\\\"\",\n  \"\",\n  `Input: ${ins.window.reviews} reviews, ${E.fmtDay(ins.window.from)} – ${E.fmtDay(ins.window.to, true)} · ${base.source}`,\n  \"Pulse text: \" + v.pulseSource,\n  \"Checks: \" + [...v.pulseChecks, ...ex.checks].map((c) => (c.ok ? \"✓ \" : \"✕ \") + c.label).join(\" · \"),\n  v.note ? \"Note: \" + v.note : \"\",\n  \"\",\n  \"━━ WEEKLY PRODUCT PULSE ━━\",\n  plainPulse,\n  \"\",\n  \"━━ FEE EXPLAINER: \" + ex.kb.title + \" ━━\",\n  ...payload.explanation_bullets.map((b) => \"• \" + b),\n  \"Sources: \" + payload.source_links.join(\" | \"),\n  \"Last checked: \" + lastChecked,\n].filter((l, i, a) => l !== \"\" || a[i - 1] !== \"\").join(\"\\n\");\n\nreturn [{ json: {\n  payload, email, docText, approvalSubject, approvalMessage,\n  pulseSource: v.pulseSource, checks: [...v.pulseChecks, ...ex.checks],\n} }];\n"
+      },
+      "id": "7618cdf3-e7ea-591b-8528-7cee874d7c37",
+      "name": "Build outputs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $('Config').first().json.approverEmail }}",
+        "subject": "={{ $json.approvalSubject }}",
+        "message": "={{ $json.approvalMessage }}",
+        "responseType": "approval",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Approve: log + create draft",
+            "disapproveLabel": "Reject"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "limitType": "afterTimeInterval",
+              "resumeAmount": 3,
+              "resumeUnit": "days"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "id": "aefffb35-3975-5d31-af86-d75f882521ad",
+      "name": "Ask approver (wait)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        100
+      ],
+      "webhookId": "732ec342-4524-5c00-a413-0b8397d54560",
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "087b1df2-3afa-545a-9c88-59ff2e2f53be",
+              "leftValue": "={{ $json.data?.approved === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "24e37652-58aa-54cd-a4b9-a472fa4cc7c3",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2220,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $('Config').first().json.googleDocId }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "object": "text",
+              "action": "insert",
+              "locationChoice": "endOfSegmentLocation",
+              "text": "={{ $('Build outputs').first().json.docText }}"
+            }
+          ]
+        }
+      },
+      "id": "8d9ef348-c1aa-5e77-9311-04d43aa84328",
+      "name": "Append entry to Google Doc",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        0
+      ],
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "operation": "create",
+        "subject": "={{ $('Build outputs').first().json.email.subject }}",
+        "emailType": "text",
+        "message": "={{ $('Build outputs').first().json.email.body }}",
+        "options": {}
+      },
+      "id": "f5b86632-c74e-54d6-b5f8-bc25f8cc8a5b",
+      "name": "Create Gmail draft",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2700,
+        0
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- Run summary (what the approved actions did) ----\nconst b = $(\"Build outputs\").first().json;\nconst draft = $input.first().json;\nconst docId = $(\"Config\").first().json.googleDocId;\nreturn [{ json: {\n  status: \"approved and completed\",\n  date: b.payload.date,\n  identified_fee_issue: b.payload.identified_fee_issue,\n  doc: docId.startsWith(\"http\") ? docId : \"https://docs.google.com/document/d/\" + docId,\n  gmail_draft_id: draft.id || null,\n  gmail_draft_sent: false,\n  pulse_source: b.pulseSource,\n} }];\n"
+      },
+      "id": "b0bcf037-b6c1-528f-8f61-9af18286af80",
+      "name": "Run summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2920,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b85acd0c-6e00-554e-9bd6-42b6043ecdb2",
+      "name": "Rejected: nothing written",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2480,
+        220
+      ]
+    }
+  ],
+  "connections": {
+    "Every Monday 09:00 IST": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload reviews CSV": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "CSV uploaded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CSV uploaded?": {
+      "main": [
+        [
+          {
+            "node": "Normalize reviews",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch reviews (Google Play, free)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch reviews (Google Play, free)": {
+      "main": [
+        [
+          {
+            "node": "Normalize reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize reviews": {
+      "main": [
+        [
+          {
+            "node": "Review intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review intelligence": {
+      "main": [
+        [
+          {
+            "node": "Free LLM: polish pulse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Free LLM: polish pulse": {
+      "main": [
+        [
+          {
+            "node": "Validate pulse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate pulse": {
+      "main": [
+        [
+          {
+            "node": "Build outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build outputs": {
+      "main": [
+        [
+          {
+            "node": "Ask approver (wait)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask approver (wait)": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Append entry to Google Doc",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejected: nothing written",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append entry to Google Doc": {
+      "main": [
+        [
+          {
+            "node": "Create Gmail draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Gmail draft": {
+      "main": [
+        [
+          {
+            "node": "Run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}

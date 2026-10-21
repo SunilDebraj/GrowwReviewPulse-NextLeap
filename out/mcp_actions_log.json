@@ -1,0 +1,31 @@
+{
+  "run_date": "2026-10-13",
+  "approval": {
+    "step": "AskUserQuestion approval gate in the Claude session (before any tool write)",
+    "options_shown": ["Approve both (Recommended)", "Doc entry only", "Email draft only", "Reject"],
+    "decision": "Approve both (Recommended)",
+    "approved_by": "user (chat)"
+  },
+  "actions": [
+    {
+      "order": 1,
+      "tool": "Claude Docs MCP — batch (create doc) + update (append entry)",
+      "target": "Groww Weekly Pulse Log",
+      "doc_url": "https://claude.ai/code/artifact/4cdb319c-bb5b-4e1c-a223-ecbca8274bcd",
+      "result": "allow — entry appended at rev 3",
+      "fields_written": ["date", "top_themes", "weekly_pulse", "identified_fee_issue", "explanation_bullets", "source_links"],
+      "evidence_file": "doc_export_groww_weekly_pulse_log.md"
+    },
+    {
+      "order": 2,
+      "tool": "Gmail MCP — create_draft",
+      "subject": "Weekly Product Pulse + Customer Clarification — 13 Oct 2026",
+      "to": [],
+      "draft_id": "r-45172299571440378",
+      "message_id": "1a1318e2e5a0925b",
+      "labels_after_create": ["DRAFT"],
+      "sent": false,
+      "evidence_file": "email_draft.md"
+    }
+  ]
+}
